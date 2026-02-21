@@ -74,9 +74,9 @@ public sealed class Result<TValue> : IResult<TValue>
         IsSuccess = true;
     }
 
-    public bool IsError => !IsSuccess;
+    public bool IsFailure => !IsSuccess;
 
-    public List<Error> Errors => IsError ? _errors! : [];
+    public List<Error> Errors => IsFailure ? _errors! : [];
 
     public TValue Value => IsSuccess ? _value! : default!;
 

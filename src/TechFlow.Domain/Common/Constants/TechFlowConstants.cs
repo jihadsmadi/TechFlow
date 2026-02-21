@@ -16,7 +16,7 @@ public static class TechFlowConstants
 
     public static class Validation
     {
-        public const int MaxNameLength = 200;
+        public const int MaxNameLength = 100;
         public const int MaxDescriptionLength = 2000;
         public const int MinPasswordLength = 6;
     }

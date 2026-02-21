@@ -1,0 +1,6 @@
+@TechFlow.API_HostAddress = http://localhost:5144
+
+GET {{TechFlow.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

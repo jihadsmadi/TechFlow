@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="src/TechFlow.API/TechFlow.API.csproj" />
+  <Project Path="src/TechFlow.Application/TechFlow.Application.csproj" />
+  <Project Path="src/TechFlow.Domain/TechFlow.Domain.csproj" />
+  <Project Path="src/TechFlow.Infrastructure/TechFlow.Infrastructure.csproj" />
+  <Project Path="src/TechFlow.Web/TechFlow.Web.csproj" />
+</Solution>

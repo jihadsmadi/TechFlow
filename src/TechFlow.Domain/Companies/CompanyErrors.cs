@@ -29,6 +29,8 @@ public static class CompanyErrors
     public static readonly Error InvalidPrimaryColor =
         Error.Validation("Company.InvalidPrimaryColor", "Primary color must be a valid hex color (e.g. #3b82f6).");
 
+    public static readonly Error SlugAlreadyExists =
+        Error.Conflict("Company.SlugAlradyExists", "A Company with this slug already exists.");
     public static Error InvalidDateFormat(string format) =>
         Error.Validation("Company.InvalidDateFormat", $"'{format}' is not a valid date format. Valid options: DD/MM/YYYY, MM/DD/YYYY, YYYY-MM-DD.");
 

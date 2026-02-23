@@ -1,4 +1,5 @@
 ﻿using TechFlow.Domain.Common.Results;
+using TechFlow.Domain.Projects.ValueObjects;
 
 namespace TechFlow.Domain.Companies.Modules;
 
@@ -8,7 +9,7 @@ namespace TechFlow.Domain.Companies.Modules;
 /// </summary>
 public sealed class CompanySettings
 {
-    public string PrimaryColor { get; private set; } = "#3b82f6";
+    public string PrimaryColor { get; private set; } = ProjectColor.GetPresets()[0];
     public string? LogoUrl { get; private set; }
     public string? CompanyWebsite { get; private set; }
     public string DefaultTimezone { get; private set; } = "UTC";
@@ -25,7 +26,8 @@ public sealed class CompanySettings
     private CompanySettings() { }
 
     internal static CompanySettings CreateDefault() => new();
-
+    public static IEnumerable<string> ValidDateFormat = ValidDateFormats.AsReadOnly();
+    public static IEnumerable<string> ValidLanguagesList = ValidLanguages.AsReadOnly();
     public Result<Updated> Update(
         string primaryColor,
         string? logoUrl,

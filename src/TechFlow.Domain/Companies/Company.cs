@@ -33,14 +33,13 @@ public sealed class Company : AuditableEntity
         Settings = CompanySettings.CreateDefault();
     }
 
-    // ── Factory ────────────────────────────────────────────
 
     public static Result<Company> Create(string name, string slug, string contactEmail, string? industry = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             return CompanyErrors.NameRequired;
 
-        if (name.Length > 100)
+        if (name.Length > TechFlowConstants.Validation.MaxNameLength)
             return CompanyErrors.NameTooLong;
 
         if (string.IsNullOrWhiteSpace(contactEmail))
@@ -63,7 +62,6 @@ public sealed class Company : AuditableEntity
         return company;
     }
 
-    // ── Business ───────────────────────────────────────────
 
     public Result<Updated> Update(string name, string contactEmail, string? industry = null)
     {

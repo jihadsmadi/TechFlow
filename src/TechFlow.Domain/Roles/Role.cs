@@ -1,4 +1,5 @@
 ﻿using TechFlow.Domain.Common;
+using TechFlow.Domain.Common.Constants;
 using TechFlow.Domain.Common.Results;
 using TechFlow.Domain.Permissions;
 
@@ -23,14 +24,13 @@ public sealed class Role : Entity
         IsSystemRole = isSystemRole;
     }
 
-    // ── Factory ────────────────────────────────────────────
 
     public static Result<Role> Create(string name, string description)
     {
         if (string.IsNullOrWhiteSpace(name))
             return RoleErrors.NameRequired;
 
-        if (name.Length > 50)
+        if (name.Length > TechFlowConstants.Validation.MaxNameLength)
             return RoleErrors.NameTooLong;
 
         return new Role(
@@ -49,7 +49,6 @@ public sealed class Role : Entity
         return new Role(id, name, description, isSystemRole: true);
     }
 
-    // ── Business ───────────────────────────────────────────
 
     public Result<Updated> Update(string name, string description)
     {
@@ -59,7 +58,7 @@ public sealed class Role : Entity
         if (string.IsNullOrWhiteSpace(name))
             return RoleErrors.NameRequired;
 
-        if (name.Length > 50)
+        if (name.Length > TechFlowConstants.Validation.MaxNameLength)
             return RoleErrors.NameTooLong;
 
         Name = name.Trim();
@@ -92,6 +91,7 @@ public sealed class Role : Entity
 
     public bool HasPermission(string permissionName) =>
         _permissions.Any(p => p.Name == permissionName);
+
 
     public Result<Deleted> Delete()
     {

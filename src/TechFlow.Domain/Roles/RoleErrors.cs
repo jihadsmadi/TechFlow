@@ -1,4 +1,5 @@
-﻿using TechFlow.Domain.Common.Results;
+﻿using TechFlow.Domain.Common.Constants;
+using TechFlow.Domain.Common.Results;
 
 namespace TechFlow.Domain.Roles;
 
@@ -8,7 +9,7 @@ public static class RoleErrors
         Error.Validation("Role.NameRequired", "Role name is required.");
 
     public static readonly Error NameTooLong =
-        Error.Validation("Role.NameTooLong", "Role name cannot exceed 50 characters.");
+        Error.Validation("Role.NameTooLong", $"Role name cannot exceed {TechFlowConstants.Validation.MaxNameLength} characters.");
 
     public static readonly Error NotFound =
         Error.NotFound("Role.NotFound", "Role was not found.");

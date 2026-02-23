@@ -43,7 +43,7 @@ namespace TechFlow.Domain.Permissions
             );
         }
 
-        public Result<Updated> Update(string description)
+        public Result<Updated> UpdateDescription(string description)
         {
             if (string.IsNullOrWhiteSpace(description))
                 return PermissionErrors.DescriptionRequired;

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using TechFlow.Application.Common.Constants;
 using TechFlow.Application.Common.Interfaces;
 using TechFlow.Application.Features.Roles.DTOs;
 using TechFlow.Domain.Common.Constants;
@@ -8,7 +9,7 @@ namespace TechFlow.Application.Features.Roles.Queries.GetAllRoles;
 
 public sealed record GetAllRolesQuery : IRequest<Result<List<RoleSummaryDto>>>, ICachedQuery
 {
-    public string CacheKey => "roles:all";
-    public string[] Tags => ["roles"];
-    public TimeSpan Expiration => TimeSpan.FromHours(TechFlowConstants.Cashe.RoleExpirTimeSpan);
+    public string CacheKey => CacheKeys.Roles.All;
+    public string[] Tags => [CacheKeys.Roles.Tag];
+    public TimeSpan Expiration => TimeSpan.FromHours(CacheKeys.Roles.ExpirationHours);
 }

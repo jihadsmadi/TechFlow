@@ -17,6 +17,6 @@ public sealed class GetAllPermissionsQueryHandler(IUnitOfWork unitOfWork)
             ? await unitOfWork.Permissions.GetAllAsync(ct)
             : await unitOfWork.Permissions.GetByGroupAsync(query.Group, ct);
 
-        return permissions.ToDtos();
+        return permissions.OrderBy(per => per.Group).ToDtos();
     }
 }

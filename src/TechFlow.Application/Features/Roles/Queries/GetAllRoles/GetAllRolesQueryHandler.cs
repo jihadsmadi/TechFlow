@@ -13,7 +13,7 @@ public sealed class GetAllRolesQueryHandler(IUnitOfWork unitOfWork)
         GetAllRolesQuery query,
         CancellationToken ct)
     {
-        var roles = await unitOfWork.Roles.GetAllAsync(ct);
+        var roles = await unitOfWork.Roles.GetAllWithPermissionsAsync(ct);
 
         return roles.ToSummaryDtos();
     }

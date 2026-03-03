@@ -1,4 +1,6 @@
 ﻿using MediatR;
+using TechFlow.Application.Common.Constants;
+using TechFlow.Application.Common.Interfaces;
 using TechFlow.Application.Features.Companies.Dtos;
 using TechFlow.Domain.Common.Results;
 
@@ -9,4 +11,7 @@ public sealed record UpdateCompanyCommand(
     string Name,
     string ContactEmail,
     string? Industry
-) : IRequest<Result<CompanyDto>>;
+) : IRequest<Result<CompanyDto>>, ICacheInvalidator
+{
+    public string[] Tags => [CacheKeys.Companies.Tag];
+}

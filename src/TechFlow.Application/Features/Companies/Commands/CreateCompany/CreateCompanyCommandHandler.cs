@@ -17,6 +17,7 @@ public sealed class CreateCompanyCommandHandler(
         CreateCompanyCommand command,
         CancellationToken ct)
     {
+
         var slugExists = await unitOfWork.Companies.ExistsBySlugAsync(command.Slug, ct);
         if (slugExists)
         {

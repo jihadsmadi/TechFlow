@@ -1,13 +1,7 @@
 ﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using TechFlow.Application.Common.Errors;
 using TechFlow.Application.Common.Interfaces.Repositories;
 using TechFlow.Application.Features.Companies.Dtos;
 using TechFlow.Application.Features.Companies.Mappers;
-using TechFlow.Application.Features.Permissions.DTOs;
-using TechFlow.Application.Features.Permissions.Queries.GetPermissionById;
 using TechFlow.Domain.Common.Results;
 using TechFlow.Domain.Companies;
 

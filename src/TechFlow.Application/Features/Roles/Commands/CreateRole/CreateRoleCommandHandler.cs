@@ -1,5 +1,7 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
+using TechFlow.Application.Common.Constants;
 using TechFlow.Application.Common.Interfaces.Repositories;
 using TechFlow.Application.Features.Roles.DTOs;
 using TechFlow.Application.Features.Roles.Mappers;
@@ -32,6 +34,7 @@ public sealed class CreateRoleCommandHandler(
         }
 
         unitOfWork.Roles.Add(result.Value);
+
         await unitOfWork.SaveChangesAsync(ct);
 
         logger.LogInformation("Role created: {Name}", result.Value.Name);

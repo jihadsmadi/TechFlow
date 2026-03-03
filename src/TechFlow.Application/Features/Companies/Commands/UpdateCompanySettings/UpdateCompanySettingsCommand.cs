@@ -1,4 +1,6 @@
 ﻿using MediatR;
+using TechFlow.Application.Common.Constants;
+using TechFlow.Application.Common.Interfaces;
 using TechFlow.Application.Features.Companies.Dtos;
 using TechFlow.Domain.Common.Results;
 
@@ -15,4 +17,7 @@ public sealed record UpdateCompanySettingsCommand(
     bool AllowGuestAccess,
     bool RequireTaskDueDate,
     bool AllowMembersInvite
-) : IRequest<Result<CompanyDto>>;
+) : IRequest<Result<CompanyDto>>, ICacheInvalidator
+{
+    public string[] Tags => [CacheKeys.Companies.Tag];
+}

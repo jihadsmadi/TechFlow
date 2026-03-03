@@ -15,6 +15,7 @@ public sealed class Slug
     private static readonly Regex ValidPattern = new(@"^[a-z0-9]+(?:-[a-z0-9]+)*$", RegexOptions.Compiled);
 
     private Slug(string value) => Value = value;
+    public static Slug FromPersistence(string value) => new(value);
 
     public static Result<Slug> Create(string raw)
     {

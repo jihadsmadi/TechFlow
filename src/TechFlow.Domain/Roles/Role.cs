@@ -44,11 +44,14 @@ public sealed class Role : Entity
     /// <summary>
     /// Used only by the seeder to create protected system roles.
     /// </summary>
-    internal static Role CreateSystem(Guid id, string name, string description)
+   internal static Role CreateSystem(Guid id, string name, string description)
     {
         return new Role(id, name, description, isSystemRole: true);
     }
-
+    public static Role SodoCreateSystem(Guid id, string name, string description)
+    {
+        return new Role(id, name, description, isSystemRole: true);
+    }
 
     public Result<Updated> Update(string name, string description)
     {

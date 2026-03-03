@@ -1,4 +1,5 @@
-﻿namespace TechFlow.Domain.Permissions.Const;
+﻿
+namespace TechFlow.Domain.Permissions.Const;
 
 /// <summary>
 /// All permission names in the system.
@@ -34,4 +35,31 @@ public static class PermissionNames
     public const string TasksDelete = "tasks.delete";
     public const string TasksAssign = "tasks.assign";
     public const string TasksMove = "tasks.move";
+
+    public static readonly IReadOnlyList<string> All =
+    [
+        CompanyRead,
+        CompanyUpdate,
+        CompanyManageSettings,
+        CompanyManageFlags,
+
+        UsersRead,
+        UsersInvite,
+        UsersDeactivate,
+        UsersManageRoles,
+
+        ProjectsRead,
+        ProjectsCreate,
+        ProjectsUpdate,
+        ProjectsArchive,
+        ProjectsDelete,
+        ProjectsManageMembers,
+
+        TasksRead,
+        TasksCreate,
+        TasksUpdate,
+        TasksDelete,
+        TasksAssign,
+        TasksMove
+    ];
 }

@@ -10,9 +10,9 @@ public sealed class FeatureFlag
 {
     public string FeatureKey { get; private set; } = string.Empty;
     public bool IsEnabled { get; private set; }
-    public DateTime? EnabledAt { get; private set; }
+    public DateTimeOffset? EnabledAt { get; private set; }
     public Guid? EnabledByUserId { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
+    public DateTimeOffset UpdatedAt { get; private set; }
 
     private FeatureFlag() { }
 

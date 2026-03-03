@@ -6,15 +6,6 @@ public static class TechFlowConstants
     public const string AppName = "TechFlow";
     public const string DatabaseConnection = "DefaultConnection";
 
-    public static class Cashe
-    {
-        public const int PermissionExpirTimeSpan = 12; // in hours
-        public const int RoleExpirTimeSpan = 24;
-
-        public const int CompanyExpirationHours = 1;
-        public const int PermissionExpirationHours = 24;
-        public const int RoleExpirationHours = 24;
-    }
     public static class Roles
     {
         public const string Admin = "Admin";
@@ -27,6 +18,9 @@ public static class TechFlowConstants
     {
         public const int MaxNameLength = 50;
         public const int MaxDescriptionLength = 2000;
+        public const int UrlLength = 500;
+        public const int MaxEmailLength = 150;
         public const int MinPasswordLength = 6;
+
     }
 }

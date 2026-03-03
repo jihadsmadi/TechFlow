@@ -1,0 +1,91 @@
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using TechFlow.API.Extensions;
+using TechFlow.Application.Features.Roles.Commands.CreateRole;
+using TechFlow.Application.Features.Roles.Commands.DeleteRole;
+using TechFlow.Application.Features.Roles.Commands.GrantPermission;
+using TechFlow.Application.Features.Roles.Commands.RevokePermission;
+using TechFlow.Application.Features.Roles.Commands.UpdateRole;
+using TechFlow.Application.Features.Roles.Queries.GetAllRoles;
+using TechFlow.Application.Features.Roles.Queries.GetRoleById;
+
+namespace TechFlow.API.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public sealed class RolesController(ISender sender) : ControllerBase
+{
+    private readonly ISender _sender = sender;
+    // GET api/roles
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+    {
+        var result = await _sender.Send(new GetAllRolesQuery(), ct);
+        return result.ToActionResult(this);
+    }
+
+    // GET api/roles/{id}
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
+    {
+        var result = await _sender.Send(new GetRoleByIdQuery(id), ct);
+        return result.ToActionResult(this);
+    }
+
+    // POST api/roles
+    [HttpPost]
+    public async Task<IActionResult> Create(
+        [FromBody] CreateRoleCommand command,
+        CancellationToken ct)
+    {
+        var result = await _sender.Send(command, ct);
+        return result.ToActionResult(this);
+    }
+
+    // PUT api/roles/{id}
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(
+        Guid id,
+        [FromBody] UpdateRoleRequest request,
+        CancellationToken ct)
+    {
+        var result = await _sender.Send(
+            new UpdateRoleCommand(id, request.Name, request.Description), ct);
+        return result.ToActionResult(this);
+    }
+
+    // DELETE api/roles/{id}
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        var result = await _sender.Send(new DeleteRoleCommand(id), ct);
+        return result.ToNoContentResult(this);
+    }
+
+    // POST api/roles/{id}/permissions
+    [HttpPost("{id:guid}/permissions")]
+    public async Task<IActionResult> GrantPermission(
+        Guid id,
+        [FromBody] PermissionIdRequest request,
+        CancellationToken ct)
+    {
+        var result = await _sender.Send(
+            new GrantPermissionCommand(id, request.PermissionId), ct);
+        return result.ToActionResult(this);
+    }
+
+    // DELETE api/roles/{id}/permissions/{permissionId}
+    [HttpDelete("{id:guid}/permissions/{permissionId:guid}")]
+    public async Task<IActionResult> RevokePermission(
+        Guid id,
+        Guid permissionId,
+        CancellationToken ct)
+    {
+        var result = await _sender.Send(
+            new RevokePermissionCommand(id, permissionId), ct);
+        return result.ToActionResult(this);
+    }
+}
+
+public sealed record UpdateRoleRequest(string Name, string Description);
+public sealed record PermissionIdRequest(Guid PermissionId);

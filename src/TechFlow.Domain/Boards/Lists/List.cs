@@ -9,13 +9,13 @@ public sealed class List : AuditableEntity
     public Guid BoardId { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public string? Color { get; private set; }
-    public int DisplayOrder { get; private set; }
+    public double DisplayOrder { get; private set; }
     public bool IsDefault { get; private set; }
     public bool IsCompletedList { get; private set; }
 
     private List() { }
 
-    private List(Guid id, Guid boardId, string name, string? color, int displayOrder, bool isDefault, bool isCompletedList)
+    private List(Guid id, Guid boardId, string name, string? color, double displayOrder, bool isDefault, bool isCompletedList)
         : base(id)
     {
         BoardId = boardId;
@@ -31,7 +31,7 @@ public sealed class List : AuditableEntity
     internal static Result<List> Create(
         Guid boardId,
         string name,
-        int displayOrder,
+        double displayOrder,
         bool isDefault = false,
         bool isCompletedList = false,
         string? color = null)
@@ -81,7 +81,7 @@ public sealed class List : AuditableEntity
         return Result.Updated;
     }
 
-    internal void SetDisplayOrder(int order)
+    internal void SetDisplayOrder(double order)
     {
         DisplayOrder = order;
     }
@@ -89,5 +89,5 @@ public sealed class List : AuditableEntity
     // ── Private Validation 
 
     private static bool IsValidId(Guid id) => id != Guid.Empty;
-    private static bool IsValidDisplayOrder(int order) => order >= 0;
+    private static bool IsValidDisplayOrder(double order) => order >= 0;
 }

@@ -1,75 +1,113 @@
-﻿using System.Text.Json;
-using TechFlow.Domain.Common.Results;
+﻿using TechFlow.Domain.Common.Results;
+using TechFlow.Domain.Tasks.ValueObjects;
 
 namespace TechFlow.Domain.Projects.ProjectSettings;
 
-/// <summary>
-/// Owned entity — part of the Project aggregate.
-/// Mapped to PROJECT_SETTINGS table via EF Core owned entity configuration.
-/// Created automatically with defaults when a Project is created.
-/// </summary>
 public sealed class ProjectSetting
 {
-    // Board defaults — used when auto-creating lists on board creation
-    public string DefaultListNames { get; private set; } = """["To Do","In Progress","Done"]""";
-    public string DefaultTaskType { get; private set; } = "Feature";
-    public string DefaultPriority { get; private set; } = "Medium";
+    private static readonly string[] DefaultLists = ["Backlog", "To Do", "In Progress", "Done"];
 
-    // Workflow rules
+    public string DefaultListNames { get; private set; } = string.Join(",", DefaultLists);
+    public string DefaultTaskType { get; private set; } = TaskType.Feature;
+    public string DefaultPriority { get; private set; } = Priority.Medium;
     public bool AutoAssignCreator { get; private set; } = false;
     public bool RequireEstimate { get; private set; } = false;
     public bool AllowSubtasks { get; private set; } = true;
-
-    private static readonly string[] ValidTaskTypes =
-        ["Bug", "Feature", "Research", "Chore"];
-
-    private static readonly string[] ValidPriorities =
-        ["Low", "Medium", "High", "Critical"];
+    public bool SprintLockOnStart { get; private set; } = false;
+    public int SprintDurationDays { get; private set; } = 14;
+    public string IncompleteTasksAction { get; private set; } = IncompleteTasksActionType.MoveToBacklog;
 
     private ProjectSetting() { }
 
-    internal static ProjectSetting CreateDefault() => new();
+    internal static ProjectSetting Default() => new();
 
-    // ── Business 
-
-    public Result<Updated> Update(
-        List<string> defaultListNames,
-        string defaultTaskType,
-        string defaultPriority,
-        bool autoAssignCreator,
-        bool requireEstimate,
-        bool allowSubtasks)
+    public Result<Updated> UpdateSprintSettings(
+        bool? sprintLockOnStart = null,
+        int? sprintDurationDays = null,
+        string? incompleteTasksAction = null)
     {
-        if (!IsValidListNames(defaultListNames))
-            return ProjectSettingsErrors.InvalidListNames;
+        if (sprintDurationDays.HasValue && sprintDurationDays.Value < 1)
+            return ProjectSettingErrors.InvalidSprintDuration;
 
-        if (!IsValidTaskType(defaultTaskType))
-            return ProjectSettingsErrors.InvalidTaskType(defaultTaskType);
+        if (incompleteTasksAction is not null &&
+            !IncompleteTasksActionType.IsValid(incompleteTasksAction))
+            return ProjectSettingErrors.InvalidIncompleteTasksAction;
 
-        if (!IsValidPriority(defaultPriority))
-            return ProjectSettingsErrors.InvalidPriority(defaultPriority);
+        if (sprintLockOnStart.HasValue)
+            SprintLockOnStart = sprintLockOnStart.Value;
 
-        DefaultListNames = JsonSerializer.Serialize(defaultListNames);
-        DefaultTaskType = defaultTaskType;
-        DefaultPriority = defaultPriority;
-        AutoAssignCreator = autoAssignCreator;
-        RequireEstimate = requireEstimate;
-        AllowSubtasks = allowSubtasks;
+        if (sprintDurationDays.HasValue)
+            SprintDurationDays = sprintDurationDays.Value;
+
+        if (incompleteTasksAction is not null)
+            IncompleteTasksAction = incompleteTasksAction;
 
         return Result.Updated;
     }
 
+    public Result<Updated> Update(
+    List<string>? defaultListNames = null,
+    string? defaultTaskType = null,
+    string? defaultPriority = null,
+    bool? autoAssignCreator = null,
+    bool? requireEstimate = null,
+    bool? allowSubtasks = null)
+    {
+        if (defaultTaskType is not null && !TaskType.IsValid(defaultTaskType))
+            return ProjectSettingErrors.InvalidTaskType;
 
-    public List<string> GetDefaultListNames() =>
-        JsonSerializer.Deserialize<List<string>>(DefaultListNames) ?? ["To Do", "In Progress", "Done"];
+        if (defaultPriority is not null && !Priority.IsValid(defaultPriority))
+            return ProjectSettingErrors.InvalidPriority;
 
-    // ── Private Validation 
+        if (defaultListNames is not null && defaultListNames.Count > 0)
+            DefaultListNames = string.Join(",", defaultListNames);
 
-    private static bool IsValidListNames(List<string> names) =>
-        names.Count >= 1 &&
-        names.Count <= 10 &&
-        names.All(n => !string.IsNullOrWhiteSpace(n));
+        if (defaultTaskType is not null)
+            DefaultTaskType = defaultTaskType;
 
-    private static bool IsValidTaskType(string type) => ValidTaskTypes.Contains(type);
-    private static bool IsValidPriority(string priority) => ValidPriorities.Contains(priority);
+        if (defaultPriority is not null)
+            DefaultPriority = defaultPriority;
+
+        if (autoAssignCreator.HasValue)
+            AutoAssignCreator = autoAssignCreator.Value;
+
+        if (requireEstimate.HasValue)
+            RequireEstimate = requireEstimate.Value;
+
+        if (allowSubtasks.HasValue)
+            AllowSubtasks = allowSubtasks.Value;
+
+        return Result.Updated;
+    }
+    public IEnumerable<string> GetDefaultListNames()
+        => DefaultListNames.Split(',', StringSplitOptions.RemoveEmptyEntries);
+}
+
+public static class IncompleteTasksActionType
+{
+    public const string MoveToBacklog = "MoveToBacklog";
+    public const string MoveToNextSprint = "MoveToNextSprint";
+    public const string LeaveInPlace = "LeaveInPlace";
+
+    public static readonly IReadOnlyList<string> All =
+        [MoveToBacklog, MoveToNextSprint, LeaveInPlace];
+
+    public static bool IsValid(string value) =>
+        All.Contains(value, StringComparer.OrdinalIgnoreCase);
+}
+
+public static class ProjectSettingErrors
+{
+    public static readonly Error InvalidSprintDuration =
+        Error.Validation("ProjectSetting.InvalidSprintDuration",
+            "Sprint duration must be at least 1 day.");
+
+    public static readonly Error InvalidIncompleteTasksAction =
+        Error.Validation("ProjectSetting.InvalidIncompleteTasksAction",
+            $"Invalid incomplete tasks action. Valid values: {string.Join(", ", IncompleteTasksActionType.All)}");
+    public static readonly Error InvalidTaskType =
+    Error.Validation("ProjectSetting.InvalidTaskType", "Invalid task type.");
+
+    public static readonly Error InvalidPriority =
+        Error.Validation("ProjectSetting.InvalidPriority", "Invalid priority.");
 }

@@ -1,13 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Xml.Linq;
-using TechFlow.Domain.Boards.Events;
+﻿using TechFlow.Domain.Boards.Events;
 using TechFlow.Domain.Boards.Lists.Events;
 using TechFlow.Domain.Common;
 using TechFlow.Domain.Common.Constants;
 using TechFlow.Domain.Common.Results;
+using TechFlow.Domain.Tasks.Events;
 
 namespace TechFlow.Domain.Boards;
 
+/// <summary>
+/// Aggregate root for the board and its lists.
+/// 1-to-1 with Project — one project has exactly one board.
+/// Board is the only way to create and manage Lists.
+/// DisplayOrder uses double for fractional indexing.
+/// </summary>
 public sealed class Board : AuditableEntity
 {
     public Guid ProjectId { get; private set; }
@@ -18,15 +23,19 @@ public sealed class Board : AuditableEntity
 
     private Board() { }
 
-    private Board(Guid id, Guid projectId, string name)
-        : base(id)
+    private Board(Guid id, Guid projectId, string name) : base(id)
     {
         ProjectId = projectId;
         Name = name;
     }
 
-    // ── Factory
+    // ── Factory ────────────────────────────────────────────────────────────────
 
+    /// <summary>
+    /// Creates a board and auto-creates its default lists.
+    /// Default lists use fractional display orders: 0.0, 1.0, 2.0, 3.0
+    /// giving room for future insertions between them.
+    /// </summary>
     public static Result<Board> Create(
         Guid projectId,
         string name,
@@ -44,8 +53,7 @@ public sealed class Board : AuditableEntity
         var board = new Board(
             id: Guid.NewGuid(),
             projectId: projectId,
-            name: name.Trim()
-        );
+            name: name.Trim());
 
         var namesList = defaultListNames.ToList();
         var totalLists = namesList.Count;
@@ -53,15 +61,18 @@ public sealed class Board : AuditableEntity
         for (var i = 0; i < totalLists; i++)
         {
             var isLast = i == totalLists - 1;
-            var isCompletedList = isLast;   // last list = "Done" = completion column
+            var isCompletedList = isLast; // last list = "Done"
+
+            // fractional starting positions: 0.0, 1.0, 2.0, 3.0 ...
+            // leaves room for insertions between whole numbers
+            var displayOrder = (double)i;
 
             var listResult = List.Create(
                 boardId: board.Id,
                 name: namesList[i],
-                displayOrder: i,
+                displayOrder: displayOrder,
                 isDefault: true,
-                isCompletedList: isCompletedList
-            );
+                isCompletedList: isCompletedList);
 
             if (listResult.IsFailure)
                 return listResult.TopError;
@@ -74,7 +85,7 @@ public sealed class Board : AuditableEntity
         return board;
     }
 
-    // ── Business 
+    // ── Business ───────────────────────────────────────────────────────────────
 
     public Result<Updated> Rename(string name)
     {
@@ -93,14 +104,16 @@ public sealed class Board : AuditableEntity
         if (HasListWithName(name))
             return ListErrors.DuplicateName;
 
-        var displayOrder = _lists.Count; 
+        // new list appended after all existing lists
+        // e.g. if last list is at 3.0, new one goes to 4.0
+        var maxOrder = _lists.Count > 0 ? _lists.Max(l => l.DisplayOrder) : -1.0;
+        var displayOrder = maxOrder + 1.0;
 
         var listResult = List.Create(
             boardId: Id,
             name: name,
             displayOrder: displayOrder,
-            color: color
-        );
+            color: color);
 
         if (listResult.IsFailure)
             return listResult.TopError;
@@ -115,7 +128,6 @@ public sealed class Board : AuditableEntity
     public Result<Updated> RemoveList(Guid listId)
     {
         var list = FindList(listId);
-
         if (list is null)
             return ListErrors.NotFound;
 
@@ -124,8 +136,8 @@ public sealed class Board : AuditableEntity
 
         _lists.Remove(list);
 
-       
-        ReorderLists();
+        // no need to reorder — fractional indexing means gaps are fine
+        // remaining orders are still valid relative to each other
 
         return Result.Updated;
     }
@@ -134,10 +146,11 @@ public sealed class Board : AuditableEntity
     {
         var ids = orderedListIds.ToList();
 
-        
         if (!AreValidListIds(ids))
             return BoardErrors.InvalidListOrder;
 
+        // assign whole number positions: 0.0, 1.0, 2.0 ...
+        // resets fractional drift after many reorders
         for (var i = 0; i < ids.Count; i++)
         {
             var list = FindList(ids[i])!;
@@ -152,11 +165,9 @@ public sealed class Board : AuditableEntity
     public Result<Updated> RenameList(Guid listId, string name)
     {
         var list = FindList(listId);
-
         if (list is null)
             return ListErrors.NotFound;
 
-       
         if (_lists.Any(l => l.Id != listId && l.Name.Equals(name.Trim(), StringComparison.OrdinalIgnoreCase)))
             return ListErrors.DuplicateName;
 
@@ -166,7 +177,6 @@ public sealed class Board : AuditableEntity
     public Result<Updated> SetListColor(Guid listId, string? color)
     {
         var list = FindList(listId);
-
         if (list is null)
             return ListErrors.NotFound;
 
@@ -176,7 +186,7 @@ public sealed class Board : AuditableEntity
     public List? GetCompletedList() =>
         _lists.FirstOrDefault(l => l.IsCompletedList);
 
-    // ── Private Helpers ─
+    // ── Private Helpers ────────────────────────────────────────────────────────
 
     private List? FindList(Guid listId) =>
         _lists.FirstOrDefault(l => l.Id == listId);
@@ -187,14 +197,7 @@ public sealed class Board : AuditableEntity
     private bool AreValidListIds(IEnumerable<Guid> ids) =>
         ids.All(id => _lists.Any(l => l.Id == id));
 
-    private void ReorderLists()
-    {
-        var ordered = _lists.OrderBy(l => l.DisplayOrder).ToList();
-        for (var i = 0; i < ordered.Count; i++)
-            ordered[i].SetDisplayOrder(i);
-    }
-
-    // ── Private Validation 
+    // ── Private Validation ─────────────────────────────────────────────────────
 
     private static bool IsValidId(Guid id) => id != Guid.Empty;
 }

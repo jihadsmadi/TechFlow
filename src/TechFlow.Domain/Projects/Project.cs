@@ -47,7 +47,7 @@ public sealed class Project : AuditableEntity
         Color = color;
         StartDate = startDate;
         EndDate = endDate;
-        Settings = ProjectSetting.CreateDefault();
+        Settings = ProjectSetting.Default();
     }
 
     // ── Factory 

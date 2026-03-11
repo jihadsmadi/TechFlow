@@ -3,7 +3,7 @@ using TechFlow.Domain.Common.Constants;
 using TechFlow.Domain.Common.Results;
 using TechFlow.Domain.Tasks.Comments;
 
-namespace TechFlow.Domain.Tasks;
+namespace TechFlow.Domain.Tasks.Comments;
 
 public sealed class Comment : Entity
 {

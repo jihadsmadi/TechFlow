@@ -1,4 +1,5 @@
-﻿using TechFlow.API;
+﻿using Scalar.AspNetCore;
+using TechFlow.API;
 using TechFlow.Application;
 using TechFlow.Infrastructure;
 using TechFlow.Infrastructure.Persistence;
@@ -19,18 +20,23 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference(options =>
+    {
+        options.WithTitle("TechFlow API");
+        options.WithDefaultHttpClient(ScalarTarget.Http, ScalarClient.HttpClient);
+    });
 
-// Migrate + seed in dev only
-using var scope = app.Services.CreateScope();
-var initialiser = scope.ServiceProvider
-    .GetRequiredService<ApplicationDbContextInitialiser>();
-await initialiser.InitialiseAsync();
-await initialiser.SeedAsync();
+    // Migrate + seed in dev only
+    using var scope = app.Services.CreateScope();
+    var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
+
+    await initialiser.InitialiseAsync();
+    await initialiser.SeedAsync();
 }
 
 app.UseHttpsRedirection();
-//app.UseAuthentication();
-//app.UseAuthorization();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

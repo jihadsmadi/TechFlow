@@ -1,10 +1,12 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using TechFlow.API.Authorization;
 using TechFlow.API.Extensions;
 using TechFlow.Application.Features.Permissions.Commands.CreatePermission;
 using TechFlow.Application.Features.Permissions.Commands.UpdatePermissionDescription;
 using TechFlow.Application.Features.Permissions.Queries.GetAllPermissions;
 using TechFlow.Application.Features.Permissions.Queries.GetPermissionById;
+using TechFlow.Domain.Permissions.Const;
 
 namespace TechFlow.API.Controllers;
 
@@ -15,6 +17,7 @@ public sealed class PermissionsController(ISender sender) : ControllerBase
     private readonly ISender _sender = sender;
 
     // GET api/permissions?group=tasks
+    [HasPermission(PermissionNames.PermissionsRead)]
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] string? group,
@@ -25,6 +28,7 @@ public sealed class PermissionsController(ISender sender) : ControllerBase
     }
 
     // GET api/permissions/{id}
+    [HasPermission(PermissionNames.PermissionsRead)]
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
@@ -33,6 +37,7 @@ public sealed class PermissionsController(ISender sender) : ControllerBase
     }
 
     // POST api/permissions
+    [HasPermission(PermissionNames.PermissionsCreate)]
     [HttpPost]
     public async Task<IActionResult> Create(
         [FromBody] CreatePermissionCommand command,
@@ -43,6 +48,7 @@ public sealed class PermissionsController(ISender sender) : ControllerBase
     }
 
     // PATCH api/permissions/{id}/description
+    [HasPermission(PermissionNames.PermissionsUpdate)]
     [HttpPatch("{id:guid}/description")]
     public async Task<IActionResult> UpdateDescription(
         Guid id,
@@ -51,9 +57,8 @@ public sealed class PermissionsController(ISender sender) : ControllerBase
     {
         var result = await _sender.Send(
             new UpdatePermissionDescriptionCommand(id, request.Description), ct);
-        return result.ToActionResult(this);
+        return result.ToNoContentResult(this);
     }
 }
 
-// Small request body record — keeps command clean (no Id in body)
 public sealed record UpdateDescriptionRequest(string Description);

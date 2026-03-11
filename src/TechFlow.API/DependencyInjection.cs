@@ -1,9 +1,11 @@
-﻿using System.Text;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using TechFlow.API.Authorization;
 using TechFlow.API.Services;
 using TechFlow.Application.Common.Interfaces;
+using TechFlow.Infrastructure.Settings;
 
 namespace TechFlow.API;
 
@@ -13,50 +15,50 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        // ── Controllers ────────────────────────────────────────────────────────
+        // ── Controllers 
         services.AddControllers();
 
-        // ── OpenAPI ────────────────────────────────────────────────────────────
         services.AddOpenApi();
 
-        // ── JWT Settings ───────────────────────────────────────────────────────
-        //var jwtSettings = configuration
-        //    .GetSection(JwtSettings.SectionName)
-        //    .Get<JwtSettings>();
 
-        //ArgumentNullException.ThrowIfNull(jwtSettings);
-        //ArgumentException.ThrowIfNullOrWhiteSpace(jwtSettings.SecretKey);
+        var jwtSettings = configuration
+            .GetSection(JwtSettings.SectionName)
+            .Get<JwtSettings>();
 
-        //services.Configure<JwtSettings>(
-        //    configuration.GetSection(JwtSettings.SectionName));
+        ArgumentNullException.ThrowIfNull(jwtSettings,
+            "JwtSettings section is missing from configuration.");
+        ArgumentException.ThrowIfNullOrWhiteSpace(jwtSettings.SecretKey,
+            "JwtSettings:SecretKey must not be empty.");
 
-        // ── JWT Authentication ─────────────────────────────────────────────────
-        //services
-        //    .AddAuthentication(options =>
-        //    {
-        //        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        //        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        //    })
-        //    .AddJwtBearer(options =>
-        //    {
-        //        options.TokenValidationParameters = new TokenValidationParameters
-        //        {
-        //            ValidateIssuer = true,
-        //            ValidateAudience = true,
-        //            ValidateLifetime = true,
-        //            ValidateIssuerSigningKey = true,
-        //            ValidIssuer = jwtSettings.Issuer,
-        //            ValidAudience = jwtSettings.Audience,
-        //            IssuerSigningKey = new SymmetricSecurityKey(
-        //                Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
-        //            ClockSkew = TimeSpan.Zero
-        //        };
-        //    });
+        // ── JWT Authentication 
+        services
+            .AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.MapInboundClaims = false;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+                    ClockSkew = TimeSpan.Zero  
+                };
+            });
 
-        services.AddAuthentication();
         services.AddAuthorization();
 
-        // ── IUser ──────────────────────────────────────────────────────────────
+        services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+
+        // ── Current User 
         services.AddHttpContextAccessor();
         services.AddScoped<IUser, CurrentUser>();
 

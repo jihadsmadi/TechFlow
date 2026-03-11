@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using TechFlow.API.Authorization;
 using TechFlow.API.Extensions;
 using TechFlow.Application.Features.Companies.Commands.ActivateCompany;
 using TechFlow.Application.Features.Companies.Commands.CreateCompany;
@@ -10,6 +11,7 @@ using TechFlow.Application.Features.Companies.Commands.UpdateCompanySettings;
 using TechFlow.Application.Features.Companies.Queries.GetAllCompanies;
 using TechFlow.Application.Features.Companies.Queries.GetCompanyById;
 using TechFlow.Application.Features.Companies.Queries.GetCompanyBySlug;
+using TechFlow.Domain.Permissions.Const;
 
 namespace TechFlow.API.Controllers;
 
@@ -19,6 +21,7 @@ public sealed class CompaniesController(ISender sender) : ControllerBase
 {
     private readonly ISender _sender = sender;
     // GET api/companies
+    [HasPermission(PermissionNames.CompanyRead)]
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
@@ -27,6 +30,7 @@ public sealed class CompaniesController(ISender sender) : ControllerBase
     }
 
     // GET api/companies/{id}
+    [HasPermission(PermissionNames.CompanyRead)]
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
@@ -35,6 +39,7 @@ public sealed class CompaniesController(ISender sender) : ControllerBase
     }
 
     // GET api/companies/slug/{slug}
+    [HasPermission(PermissionNames.CompanyRead)]
     [HttpGet("slug/{slug}")]
     public async Task<IActionResult> GetBySlug(string slug, CancellationToken ct)
     {
@@ -43,6 +48,7 @@ public sealed class CompaniesController(ISender sender) : ControllerBase
     }
 
     // POST api/companies
+    [HasPermission(PermissionNames.CompanyCreate)] 
     [HttpPost]
     public async Task<IActionResult> Create(
         [FromBody] CreateCompanyCommand command,
@@ -53,6 +59,7 @@ public sealed class CompaniesController(ISender sender) : ControllerBase
     }
 
     // PUT api/companies/{id}
+    [HasPermission(PermissionNames.CompanyUpdate)]
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(
         Guid id,
@@ -61,10 +68,12 @@ public sealed class CompaniesController(ISender sender) : ControllerBase
     {
         var result = await _sender.Send(
             new UpdateCompanyCommand(id, request.Name, request.ContactEmail, request.Industry), ct);
-        return result.ToActionResult(this);
+        return result.ToNoContentResult(this);
     }
 
+
     // PUT api/companies/{id}/settings
+    [HasPermission(PermissionNames.CompanyManageSettings)]
     [HttpPut("{id:guid}/settings")]
     public async Task<IActionResult> UpdateSettings(
         Guid id,
@@ -83,10 +92,11 @@ public sealed class CompaniesController(ISender sender) : ControllerBase
                 request.AllowGuestAccess,
                 request.RequireTaskDueDate,
                 request.AllowMembersInvite), ct);
-        return result.ToActionResult(this);
+        return result.ToNoContentResult(this);
     }
 
     // PATCH api/companies/{id}/features
+    [HasPermission(PermissionNames.CompanyManageFlags)]
     [HttpPatch("{id:guid}/features")]
     public async Task<IActionResult> SetFeatureFlag(
         Guid id,
@@ -95,10 +105,11 @@ public sealed class CompaniesController(ISender sender) : ControllerBase
     {
         var result = await _sender.Send(
             new SetFeatureFlagCommand(id, request.FeatureKey, request.IsEnabled, request.ToggledByUserId), ct);
-        return result.ToActionResult(this);
+        return result.ToNoContentResult(this);
     }
 
     // PATCH api/companies/{id}/activate
+    [HasPermission(PermissionNames.CompanyManageSettings)] 
     [HttpPatch("{id:guid}/activate")]
     public async Task<IActionResult> Activate(Guid id, CancellationToken ct)
     {
@@ -107,6 +118,7 @@ public sealed class CompaniesController(ISender sender) : ControllerBase
     }
 
     // PATCH api/companies/{id}/deactivate
+    [HasPermission(PermissionNames.CompanyManageSettings)]
     [HttpPatch("{id:guid}/deactivate")]
     public async Task<IActionResult> Deactivate(Guid id, CancellationToken ct)
     {

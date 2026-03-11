@@ -46,7 +46,7 @@ public sealed class GetProjectByIdQueryHandler(
             ArchivedAt:      project.ArchivedAt,
             MemberCount:     project.Members.Count,
             Settings: new ProjectSettingsDto(
-                DefaultListNames: project.Settings.GetDefaultListNames(),
+                DefaultListNames: project.Settings.GetDefaultListNames().ToList(),
                 DefaultTaskType:  project.Settings.DefaultTaskType,
                 DefaultPriority:  project.Settings.DefaultPriority,
                 AutoAssignCreator: project.Settings.AutoAssignCreator,

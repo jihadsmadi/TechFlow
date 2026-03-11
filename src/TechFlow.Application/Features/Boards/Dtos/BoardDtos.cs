@@ -13,7 +13,7 @@ public sealed record ListDto(
     Guid BoardId,
     string Name,
     string? Color,
-    int DisplayOrder,
+    double DisplayOrder,
     bool IsDefault,
     bool IsCompletedList,
     DateTimeOffset CreatedAt,
@@ -23,6 +23,6 @@ public sealed record ListSummaryDto(
     Guid Id,
     string Name,
     string? Color,
-    int DisplayOrder,
+    double DisplayOrder,
     bool IsDefault,
     bool IsCompletedList);

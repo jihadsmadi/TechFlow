@@ -6,8 +6,10 @@ public sealed class UnitOfWork(ApplicationDbContext context) : IUnitOfWork
 {
     private IPermissionRepository? _permissions;
     private IRoleRepository?       _roles;
-
     private ICompanyRepository?    _companies;
+    private IUserRepository?       _users;
+    private IProjectRepository?    _projects;
+    private IBoardRepository?      _boards;
 
     // ── Properties 
 
@@ -19,7 +21,12 @@ public sealed class UnitOfWork(ApplicationDbContext context) : IUnitOfWork
 
     public ICompanyRepository Companies =>
         _companies ??= new CompanyRepository(context);
-
+    public IUserRepository Users =>
+        _users ??= new UserRepository(context);
+    public IProjectRepository Projects =>
+        _projects ??= new ProjectRepository(context);
+    public IBoardRepository Boards =>
+        _boards ??= new BoardRepository(context);
     // ── Persistence 
 
     public async Task<int> SaveChangesAsync(CancellationToken ct = default)

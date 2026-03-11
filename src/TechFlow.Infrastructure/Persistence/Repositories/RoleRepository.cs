@@ -9,6 +9,7 @@ public sealed class RoleRepository(ApplicationDbContext context)
 {
     public async Task<Role?> GetByNameAsync(string name, CancellationToken ct = default)
         => await DbSet
+            .Include(r => r.Permissions)
             .FirstOrDefaultAsync(r => r.Name == name, ct);
 
     public async Task<Role?> GetWithPermissionsAsync(Guid roleId, CancellationToken ct = default)

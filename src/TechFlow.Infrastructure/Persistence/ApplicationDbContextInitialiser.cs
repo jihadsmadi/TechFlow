@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TechFlow.Domain.Companies;
 using TechFlow.Domain.Permissions;
 using TechFlow.Domain.Permissions.Const;
 using TechFlow.Domain.Roles;
+using TechFlow.Domain.Users;
+using TechFlow.Domain.Users.UserCompanyRoles;
 using TechFlow.Infrastructure.Identity;
 
 namespace TechFlow.Infrastructure.Persistence;
@@ -17,7 +20,7 @@ public sealed class ApplicationDbContextInitialiser(
     UserManager<AppUser> userManager,
     ILogger<ApplicationDbContextInitialiser> logger)
 {
-    // ── Migrations 
+    // ── Migrations ────────────────────────────────────────────────────────────
 
     public async Task InitialiseAsync()
     {
@@ -33,7 +36,7 @@ public sealed class ApplicationDbContextInitialiser(
         }
     }
 
-    // ── Seeding 
+    // ── Seeding ───────────────────────────────────────────────────────────────
 
     public async Task SeedAsync()
     {
@@ -41,6 +44,7 @@ public sealed class ApplicationDbContextInitialiser(
         {
             await SeedPermissionsAsync();
             await SeedRolesAsync();
+            await SeedRolePermissionsAsync(); 
             await SeedAdminUserAsync();
 
             logger.LogInformation("Database seeded successfully.");
@@ -52,21 +56,22 @@ public sealed class ApplicationDbContextInitialiser(
         }
     }
 
-    // ── Seed Permissions 
+    // ── Seed Permissions ──────────────────────────────────────────────────────
 
     private async Task SeedPermissionsAsync()
     {
-        // All permission names from PermissionNames constants
         var allNames = PermissionNames.All;
 
         foreach (var name in allNames)
         {
-            var exists = await context.Permissions
-                .AnyAsync(p => p.Name == name);
-
+            var permissions = await context.Permissions.ToListAsync();
+            var exists = permissions.Any(p => p.Name == name);
             if (exists) continue;
 
-            // Extract group from name (e.g. "tasks.create" → "tasks")
+            if(name == PermissionNames.PermissionsCreate)
+            {
+                Console.Write("");
+            }
             var group = name.Split('.')[0];
             var groupFormatted = char.ToUpper(group[0]) + group[1..];
 
@@ -77,7 +82,8 @@ public sealed class ApplicationDbContextInitialiser(
 
             if (result.IsFailure)
             {
-                logger.LogWarning("Failed to seed permission {Name}: {Error}", name, result.TopError);
+                logger.LogWarning("Failed to seed permission {Name}: {Error}",
+                    name, result.TopError);
                 continue;
             }
 
@@ -88,14 +94,11 @@ public sealed class ApplicationDbContextInitialiser(
         logger.LogInformation("Permissions seeded.");
     }
 
-    // ── Seed Roles 
+    // ── Seed Roles ────────────────────────────────────────────────────────────
 
     private async Task SeedRolesAsync()
     {
-        // System roles defined in SystemRoles — protected from modification
-        var systemRoles = SystemRoles.All;
-
-        foreach (var (roleName,roleDescription) in systemRoles)
+        foreach (var (roleName, roleDescription) in SystemRoles.All)
         {
             var exists = await context.Roles.AnyAsync(r => r.Name == roleName);
             if (exists) continue;
@@ -108,33 +111,192 @@ public sealed class ApplicationDbContextInitialiser(
         logger.LogInformation("Roles seeded.");
     }
 
-    // ── Seed Admin User 
+    // ── Seed Role Permissions ─────────────────────────────────────────────────
+
+    private async Task SeedRolePermissionsAsync()
+    {
+        var allPermissions = await context.Permissions.ToListAsync();
+
+        var permissionByName = allPermissions.ToDictionary(p => p.Name);
+
+        // ── Admin gets everything ─────────────────────────────────────────────
+        await AssignPermissionsToRoleAsync(
+            SystemRoles.Admin,
+            PermissionNames.All,
+            permissionByName);
+
+        // ── ProjectManager ────────────────────────────────────────────────────
+        await AssignPermissionsToRoleAsync(
+            SystemRoles.ProjectManager,
+            [
+                PermissionNames.ProjectsRead,
+                PermissionNames.ProjectsCreate,
+                PermissionNames.ProjectsUpdate,
+                PermissionNames.ProjectsArchive,
+                PermissionNames.ProjectsManageMembers,
+                PermissionNames.TasksRead,
+                PermissionNames.TasksCreate,
+                PermissionNames.TasksUpdate,
+                PermissionNames.TasksDelete,
+                PermissionNames.TasksAssign,
+                PermissionNames.TasksMove,
+                PermissionNames.UsersRead,
+            ],
+            permissionByName);
+
+        // ── Developer ─────────────────────────────────────────────────────────
+        await AssignPermissionsToRoleAsync(
+            SystemRoles.Developer,
+            [
+                PermissionNames.ProjectsRead,
+                PermissionNames.TasksRead,
+                PermissionNames.TasksCreate,
+                PermissionNames.TasksUpdate,
+                PermissionNames.TasksMove,
+            ],
+            permissionByName);
+
+        // ── Intern ────────────────────────────────────────────────────────────
+        await AssignPermissionsToRoleAsync(
+            SystemRoles.Intern,
+            [
+                PermissionNames.ProjectsRead,
+                PermissionNames.TasksRead,
+            ],
+            permissionByName);
+
+        await context.SaveChangesAsync();
+        logger.LogInformation("Role permissions seeded.");
+    }
+
+    private async Task AssignPermissionsToRoleAsync(
+        string roleName,
+        IEnumerable<string> permissionNames,
+        Dictionary<string, Permission> permissionByName)
+    {
+        var role = await context.Roles
+            .Include(r => r.Permissions)
+            .FirstOrDefaultAsync(r => r.Name == roleName);
+
+        if (role is null)
+        {
+            logger.LogWarning("Role {RoleName} not found during permission seeding.", roleName);
+            return;
+        }
+
+        foreach (var name in permissionNames)
+        {
+            if (!permissionByName.TryGetValue(name, out var permission))
+            {
+                logger.LogWarning("Permission {Name} not found during role seeding.", name);
+                continue;
+            }
+
+            // skip if already assigned
+            if (role.Permissions.Any(p => p.Id == permission.Id))
+                continue;
+
+            role.GrantPermission(permission);
+        }
+    }
+
+    // ── Seed Admin User ───────────────────────────────────────────────────────
 
     private async Task SeedAdminUserAsync()
     {
-        const string adminEmail    = "admin@techflow.dev";
+        const string adminEmail = "admin@techflow.dev";
         const string adminPassword = "Admin@123456";
 
+        // ── skip if already seeded ────────────────────────────────────────────
         var existing = await userManager.FindByEmailAsync(adminEmail);
         if (existing is not null) return;
 
+        // ── 1. seed a system company for the admin ────────────────────────────
+        var company = await context.Companies
+            .FirstOrDefaultAsync(c => c.Slug.Value == "techflow-system");
+
+        if (company is null)
+        {
+            var companyResult = Company.Create(
+                "TechFlow System",
+                "techflow-system",
+                "system@techflow.dev",
+                "Technology");
+
+            if (companyResult.IsFailure)
+            {
+                logger.LogWarning("Failed to seed system company: {Error}",
+                    companyResult.TopError);
+                return;
+            }
+
+            company = companyResult.Value;
+            context.Companies.Add(company);
+            await context.SaveChangesAsync();
+        }
+
+        // ── 2. create AppUser (Identity) ──────────────────────────────────────
+        var appUserId = Guid.NewGuid();
         var appUser = new AppUser
         {
-            Id            = Guid.NewGuid(),
-            UserName      = adminEmail,
-            Email         = adminEmail,
-            EmailConfirmed = true
+            Id = appUserId,
+            UserName = adminEmail,
+            Email = adminEmail,
+            EmailConfirmed = true,
         };
 
-        var result = await userManager.CreateAsync(appUser, adminPassword);
-
-        if (!result.Succeeded)
+        var identityResult = await userManager.CreateAsync(appUser, adminPassword);
+        if (!identityResult.Succeeded)
         {
-            logger.LogWarning(
-                "Failed to seed admin user: {Errors}",
-                string.Join(", ", result.Errors.Select(e => e.Description)));
+            logger.LogWarning("Failed to seed admin AppUser: {Errors}",
+                string.Join(", ", identityResult.Errors.Select(e => e.Description)));
             return;
         }
+
+        // ── 3. create domain User ─────────────────────────────────────────────
+        var userResult = User.Create(
+            appUserId,
+            company.Id,
+            "System",
+            "Admin",
+            adminEmail);
+
+        if (userResult.IsFailure)
+        {
+            logger.LogWarning("Failed to seed admin domain User: {Error}",
+                userResult.TopError);
+            return;
+        }
+
+        var domainUser = userResult.Value;
+
+        /// ── 4. assign Admin role company-wide ─────────────────────────────────
+        var adminRole = await context.Roles
+            .FirstOrDefaultAsync(r => r.Name == SystemRoles.Admin);
+
+        if (adminRole is null)
+        {
+            logger.LogWarning("Admin role not found — cannot assign to seeded admin user.");
+            return;
+        }
+
+        // CREATE the role assignment — don't query for it, it doesn't exist yet
+        var companyRoleResult = UserCompanyRole.Create(
+            userId: domainUser.Id,
+            roleId: adminRole.Id,
+            assignedByUserId: appUserId);   // self-assigned during seeding
+
+        if (companyRoleResult.IsFailure)
+        {
+            logger.LogWarning("Failed to create admin company role: {Error}",
+                companyRoleResult.TopError);
+            return;
+        }
+
+        domainUser.AssignCompanyRole(companyRoleResult.Value);
+
+        context.Users.Add(domainUser);
+        await context.SaveChangesAsync();
 
         logger.LogInformation("Admin user seeded: {Email}", adminEmail);
     }

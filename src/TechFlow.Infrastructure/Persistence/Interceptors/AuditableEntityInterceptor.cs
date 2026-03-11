@@ -40,8 +40,12 @@ public sealed class AuditableEntityInterceptor(
         var userId = user.Id?.ToString();
         var utcNow = timeProvider.GetUtcNow();
 
-        foreach (var entry in context.ChangeTracker.Entries<AuditableEntity>())
+        Console.WriteLine($"Before Update Entities: userId:{userId},utcNow:{utcNow}");
+        var entityEntiries = context.ChangeTracker.Entries<AuditableEntity>();
+        Console.WriteLine($"entity entiries {entityEntiries}");
+        foreach (var entry in entityEntiries)
         {
+            Console.WriteLine($"entity {entry}");
             if (entry.State is EntityState.Added or EntityState.Modified
                 || entry.HasChangedOwnedEntities())
             {

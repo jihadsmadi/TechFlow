@@ -1,4 +1,5 @@
-﻿using TechFlow.Domain.Common.Results;
+﻿using TechFlow.Application.Features.Projects.Dtos;
+using TechFlow.Domain.Common.Results;
 
 namespace TechFlow.Application.Common.Errors;
 
@@ -26,6 +27,10 @@ public static class ApplicationErrors
     public static readonly Error InvalidRefreshToken = Error.Unauthorized(
         "Auth.InvalidRefreshToken",
         "Refresh token is invalid.");
+    public static readonly Error InvalidAccessToken =
+        Error.Unauthorized(
+            "Auth.InvalidAccessToken",
+            "Access token is invalid or expired.");
 
     // ── Authorization ──────────────────────────────────────────────────────────
 
@@ -40,10 +45,14 @@ public static class ApplicationErrors
     public static readonly Error UserIdClaimMissing = Error.Unauthorized(
         "Auth.UserIdClaimMissing",
         "User ID could not be read from token.");
+    public static readonly Error Unauthorized = Error.Unauthorized(
+        "Auth.Unauthorized",
+        "You are not authorized to perform this action.");
 
     // ── System ─────────────────────────────────────────────────────────────────
 
     public static readonly Error UnexpectedError = Error.Unexpected(
         "System.UnexpectedError",
         "An unexpected error occurred. Please try again.");
+
 }

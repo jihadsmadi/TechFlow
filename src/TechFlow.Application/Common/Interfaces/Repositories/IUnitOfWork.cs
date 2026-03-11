@@ -9,6 +9,9 @@ public interface IUnitOfWork
     IPermissionRepository Permissions { get; }
     IRoleRepository Roles { get; }
     ICompanyRepository Companies { get; }
+    IUserRepository Users { get; }
+    IProjectRepository Projects { get; }
+    IBoardRepository Boards { get; }
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

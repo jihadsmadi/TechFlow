@@ -16,7 +16,7 @@ public static class DependencyInjection
             cfg.AddOpenBehavior(typeof(UnhandledExceptionBehaviour<,>)); // outermost
             //cfg.AddOpenBehavior(typeof(LoggingBehaviour<,>));
             //cfg.AddOpenBehavior(typeof(PerformanceBehaviour<,>));
-            //cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
             cfg.AddOpenBehavior(typeof(CacheInvalidationBehavior<,>));
             cfg.AddOpenBehavior(typeof(CachingBehavior<,>));            // innermost
         });

@@ -6,7 +6,8 @@ public static class CacheKeys
     {
         Permissions.Tag,
         Roles.Tag,
-        Companies.Tag
+        Companies.Tag,
+        Users.Tag
     };
     public static class Permissions
     {
@@ -30,5 +31,12 @@ public static class CacheKeys
         public static string BySlug(string slug) => $"companies:slug:{slug}";
         public const string Tag = "companies";
         public const int ExpirationHours = 1;
+    }
+    public static class Users
+    {
+        public const string All = "users:all";
+        public static string ById(Guid id) => $"users:{id}";
+        public const string Tag = "users";
+        public const int ExpirationMinutes = 30;
     }
 }

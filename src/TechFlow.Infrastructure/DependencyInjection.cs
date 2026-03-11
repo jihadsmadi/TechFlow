@@ -3,10 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TechFlow.Application.Common.Interfaces;
 using TechFlow.Application.Common.Interfaces.Repositories;
+using TechFlow.Application.Common.Interfaces.Services;
+using TechFlow.Application.Common.Services;
 using TechFlow.Infrastructure.Identity;
+using TechFlow.Infrastructure.Identity.Services;
 using TechFlow.Infrastructure.Persistence;
 using TechFlow.Infrastructure.Persistence.Interceptors;
+using TechFlow.Infrastructure.Settings;
 
 namespace TechFlow.Infrastructure;
 
@@ -20,6 +25,10 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         ArgumentNullException.ThrowIfNull(connectionString);
 
+        // ── JWT Settings 
+        services.Configure<JwtSettings>(
+            configuration.GetSection(JwtSettings.SectionName));
+
         // ── Interceptors 
         services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
 
@@ -29,7 +38,8 @@ public static class DependencyInjection
             options
                 .UseSqlServer(
                     connectionString,
-                    sql => sql.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.GetName().Name))
+                    sql => sql.MigrationsAssembly(
+                        typeof(ApplicationDbContext).Assembly.GetName().Name))
                 .AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
         });
 
@@ -44,10 +54,16 @@ public static class DependencyInjection
         })
         .AddRoles<IdentityRole<Guid>>()
         .AddEntityFrameworkStores<ApplicationDbContext>();
-        //.AddDefaultTokenProviders();
 
-        // ── Repository + UnitOfWork 
+        // ── Repositories 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        // ── Auth + Token Services 
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ITokenService, TokenService>();
+
+        // ── Services
+        services.AddScoped<ProjectAccessService>();
 
         // ── Seeder 
         services.AddScoped<ApplicationDbContextInitialiser>();

@@ -9,6 +9,7 @@ using TechFlow.Domain.Companies;
 using TechFlow.Domain.Permissions;
 using TechFlow.Domain.Projects;
 using TechFlow.Domain.Roles;
+using TechFlow.Domain.Tasks.Subtasks;
 using TechFlow.Domain.Users;
 using TechFlow.Domain.Users.UserCompanyRoles;
 using TechFlow.Domain.Users.UserProjectRoles;
@@ -35,7 +36,8 @@ public sealed class ApplicationDbContext(
     public DbSet<Board>         Boards         => Set<Board>();
     public DbSet<List>          Lists          => Set<List>();
 
-    // public DbSet<Domain.Tasks.Task> Tasks      => Set<Domain.Tasks.Task>();
+    public DbSet<Domain.Tasks.Task> Tasks      => Set<Domain.Tasks.Task>();
+    public DbSet<Subtask> Subtasks => Set<Subtask>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -43,7 +45,12 @@ public sealed class ApplicationDbContext(
         builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
         // ── Ignore until Phase 3 ──────────────────────────────────────────────
-        builder.Ignore<TechFlow.Domain.Tasks.Task>();
+        builder.Ignore<Domain.Tasks.Attachments.Attachment>();
+        builder.Ignore<Domain.Tasks.TaskAssignments.TaskAssignment>();
+        builder.Ignore<Domain.Tasks.CustomeFields.CustomFieldDefinition>();
+        builder.Ignore<Domain.Tasks.CustomeFields.CustomFieldValue>();
+        builder.Ignore<Domain.Tasks.Comments.Comment>();
+
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken ct = default)

@@ -57,6 +57,12 @@ public sealed class ProjectConfiguration : IEntityTypeConfiguration<Project>
                 .IsRequired()
                 .HasMaxLength(20);
 
+            settings.Property(s => s.SprintLockOnStart).IsRequired();
+            settings.Property(s => s.SprintDurationDays).IsRequired();
+            settings.Property(s => s.IncompleteTasksAction)
+                .IsRequired()
+                .HasMaxLength(20);
+
             settings.Property(s => s.AutoAssignCreator).IsRequired();
             settings.Property(s => s.RequireEstimate).IsRequired();
             settings.Property(s => s.AllowSubtasks).IsRequired();

@@ -2,16 +2,16 @@
 
 namespace TechFlow.Domain.Users.Events;
 
-public sealed class UserRoleAssignedEvent : DomainEvent
+public sealed class UserProjectRoleAssignedEvent : DomainEvent
 {
     public Guid UserId { get; }
+    public Guid ProjectId { get; }
     public Guid RoleId { get; }
-    public Guid? ProjectId { get; }
 
-    public UserRoleAssignedEvent(Guid userId, Guid roleId, Guid? projectId)
+    public UserProjectRoleAssignedEvent(Guid userId,Guid projectId, Guid roleId)
     {
         UserId = userId;
-        RoleId = roleId;
         ProjectId = projectId;
+        RoleId = roleId;
     }
 }

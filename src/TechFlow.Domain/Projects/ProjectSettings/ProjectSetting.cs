@@ -30,7 +30,7 @@ public sealed class ProjectSetting
 
     internal static ProjectSetting CreateDefault() => new();
 
-    // ── Business ───────────────────────────────────────────────────────────────
+    // ── Business 
 
     public Result<Updated> Update(
         List<string> defaultListNames,
@@ -59,14 +59,11 @@ public sealed class ProjectSetting
         return Result.Updated;
     }
 
-    /// <summary>
-    /// Returns the default list names as a typed list.
-    /// Used when auto-creating board lists on project creation.
-    /// </summary>
+
     public List<string> GetDefaultListNames() =>
         JsonSerializer.Deserialize<List<string>>(DefaultListNames) ?? ["To Do", "In Progress", "Done"];
 
-    // ── Private Validation ─────────────────────────────────────────────────────
+    // ── Private Validation 
 
     private static bool IsValidListNames(List<string> names) =>
         names.Count >= 1 &&

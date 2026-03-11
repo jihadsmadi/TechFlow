@@ -3,7 +3,8 @@ using TechFlow.Domain.Common;
 using TechFlow.Domain.Common.Constants;
 using TechFlow.Domain.Common.Results;
 using TechFlow.Domain.Users.Events;
-using TechFlow.Domain.Users.UserRoles;
+using TechFlow.Domain.Users.UserCompanyRoles;
+using TechFlow.Domain.Users.UserProjectRoles;
 
 namespace TechFlow.Domain.Users;
 
@@ -22,9 +23,12 @@ public sealed class User : AuditableEntity
     // Owned entity — auto created on registration
     public UserPreferences Preferences { get; private set; } = null!;
 
-    // Navigatio
-    private readonly List<UserRole> _userRoles = [];
-    public IReadOnlyList<UserRole> UserRoles => _userRoles.AsReadOnly();
+    // Navigation
+    private readonly List<UserCompanyRole> _userCompanyRoles = [];
+    public IReadOnlyList<UserCompanyRole> UserCompanyRoles => _userCompanyRoles.AsReadOnly();
+
+    private readonly List<UserProjectRole> _userProjectRoles = [];
+    public IReadOnlyList<UserProjectRole> UserProjectRoles => _userProjectRoles.AsReadOnly();
 
     private User() { }
 
@@ -39,7 +43,7 @@ public sealed class User : AuditableEntity
         Preferences = UserPreferences.CreateDefault();
     }
 
-    // ── Factory ────────────────────────────────────────────────────────────────
+    // ── Factory 
 
     public static Result<User> Create(
         Guid identityUserId,
@@ -86,7 +90,7 @@ public sealed class User : AuditableEntity
         return user;
     }
 
-    // ── Business ───────────────────────────────────────────────────────────────
+    // ── Business 
 
     public Result<Updated> Update(string firstName, string lastName, string? avatarUrl = null)
     {
@@ -109,32 +113,57 @@ public sealed class User : AuditableEntity
         return Result.Updated;
     }
 
-    public Result<Updated> AssignRole(UserRole userRole)
+    public Result<Updated> AssignCompanyRole(UserCompanyRole userCompanyRole)
     {
-        var alreadyAssigned = _userRoles.Any(ur =>
-            ur.RoleId == userRole.RoleId &&
-            ur.ProjectId == userRole.ProjectId);
+        var alreadyAssigned = _userCompanyRoles.Any(ur =>
+            ur.RoleId == userCompanyRole.RoleId);
 
         if (alreadyAssigned)
-            return UserRoleErrors.AlreadyAssigned;
+            return UserCompanyRoleErrors.AlreadyAssigned;
 
-        _userRoles.Add(userRole);
+        _userCompanyRoles.Add(userCompanyRole);
 
-        AddDomainEvent(new UserRoleAssignedEvent(Id, userRole.RoleId, userRole.ProjectId));
+        AddDomainEvent(new UserCompanyRoleAssignedEvent(Id, userCompanyRole.RoleId));
 
         return Result.Updated;
     }
 
-    public Result<Updated> RemoveRole(Guid roleId, Guid? projectId)
+    public Result<Updated> RemoveCompanyRole(Guid roleId)
     {
-        var existing = _userRoles.FirstOrDefault(ur =>
-            ur.RoleId == roleId &&
-            ur.ProjectId == projectId);
+        var existing = _userCompanyRoles.FirstOrDefault(ur =>
+            ur.RoleId == roleId);
 
         if (existing is null)
-            return UserRoleErrors.NotFound;
+            return UserCompanyRoleErrors.NotFound;
 
-        _userRoles.Remove(existing);
+        _userCompanyRoles.Remove(existing);
+
+        return Result.Updated;
+    }
+    public Result<Updated> AssignProjectRole(UserProjectRole userProjectRole)
+    {
+        var alreadyAssigned = _userProjectRoles.Any(ur =>
+            ur.RoleId == userProjectRole.RoleId);
+
+        if (alreadyAssigned)
+            return UserProjectRoleErrors.AlreadyAssigned;
+
+        _userProjectRoles.Add(userProjectRole);
+
+        AddDomainEvent(new UserProjectRoleAssignedEvent(Id,userProjectRole.ProjectId, userProjectRole.RoleId));
+
+        return Result.Updated;
+    }
+
+    public Result<Updated> RemoveProjectRole(Guid roleId)
+    {
+        var existing = _userProjectRoles.FirstOrDefault(ur =>
+            ur.RoleId == roleId);
+
+        if (existing is null)
+            return UserProjectRoleErrors.NotFound;
+
+        _userProjectRoles.Remove(existing);
 
         return Result.Updated;
     }
@@ -162,11 +191,10 @@ public sealed class User : AuditableEntity
     }
 
     public bool HasRoleInProject(Guid roleId, Guid projectId) =>
-        _userRoles.Any(ur =>
-            ur.RoleId == roleId &&
-            (ur.IsCompanyWide || ur.ProjectId == projectId));
+        _userProjectRoles.Any(ur =>
+            ur.RoleId == roleId && ur.ProjectId == projectId);
 
-    // ── Private Validation ─────────────────────────────────────────────────────
+    // ── Private Validation 
 
     private static bool IsValidId(Guid id) => id != Guid.Empty;
 

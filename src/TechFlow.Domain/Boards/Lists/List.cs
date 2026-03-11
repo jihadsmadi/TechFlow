@@ -4,11 +4,7 @@ using TechFlow.Domain.Common.Results;
 
 namespace TechFlow.Domain.Boards;
 
-/// <summary>
-/// Represents a column on a board (e.g. "To Do", "In Progress", "Done").
-/// Belongs to the Board aggregate — never created independently.
-/// </summary>
-public sealed class List : Entity
+public sealed class List : AuditableEntity
 {
     public Guid BoardId { get; private set; }
     public string Name { get; private set; } = string.Empty;
@@ -16,8 +12,6 @@ public sealed class List : Entity
     public int DisplayOrder { get; private set; }
     public bool IsDefault { get; private set; }
     public bool IsCompletedList { get; private set; }
-    public DateTimeOffset CreatedAt { get; private set; }
-    public DateTimeOffset UpdatedAt { get; private set; }
 
     private List() { }
 
@@ -30,11 +24,9 @@ public sealed class List : Entity
         DisplayOrder = displayOrder;
         IsDefault = isDefault;
         IsCompletedList = isCompletedList;
-        CreatedAt = DateTimeOffset.UtcNow;
-        UpdatedAt = DateTimeOffset.UtcNow;
     }
 
-    // ── Factory ────────────────────────────────────────────────────────────────
+    // ── Factory
 
     internal static Result<List> Create(
         Guid boardId,
@@ -67,7 +59,7 @@ public sealed class List : Entity
         );
     }
 
-    // ── Business ───────────────────────────────────────────────────────────────
+    // ── Business 
 
     public Result<Updated> Rename(string name)
     {
@@ -78,7 +70,6 @@ public sealed class List : Entity
             return ListErrors.NameTooLong;
 
         Name = name.Trim();
-        UpdatedAt = DateTimeOffset.UtcNow;
 
         return Result.Updated;
     }
@@ -86,22 +77,16 @@ public sealed class List : Entity
     public Result<Updated> SetColor(string? color)
     {
         Color = color?.Trim();
-        UpdatedAt = DateTimeOffset.UtcNow;
 
         return Result.Updated;
     }
 
-    /// <summary>
-    /// Called by Board when reordering columns.
-    /// Only Board can reorder — lists don't reorder themselves.
-    /// </summary>
     internal void SetDisplayOrder(int order)
     {
         DisplayOrder = order;
-        UpdatedAt = DateTimeOffset.UtcNow;
     }
 
-    // ── Private Validation ─────────────────────────────────────────────────────
+    // ── Private Validation 
 
     private static bool IsValidId(Guid id) => id != Guid.Empty;
     private static bool IsValidDisplayOrder(int order) => order >= 0;

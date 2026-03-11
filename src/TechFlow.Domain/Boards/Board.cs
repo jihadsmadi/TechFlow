@@ -8,11 +8,6 @@ using TechFlow.Domain.Common.Results;
 
 namespace TechFlow.Domain.Boards;
 
-/// <summary>
-/// Aggregate root for the board and its lists.
-/// 1-to-1 with Project — one project has exactly one board.
-/// Board is the only way to create and manage Lists.
-/// </summary>
 public sealed class Board : AuditableEntity
 {
     public Guid ProjectId { get; private set; }
@@ -30,12 +25,8 @@ public sealed class Board : AuditableEntity
         Name = name;
     }
 
-    // ── Factory ────────────────────────────────────────────────────────────────
+    // ── Factory
 
-    /// <summary>
-    /// Creates a board and auto-creates its default lists from the project settings.
-    /// Called by the application layer when a Project is created.
-    /// </summary>
     public static Result<Board> Create(
         Guid projectId,
         string name,
@@ -56,7 +47,6 @@ public sealed class Board : AuditableEntity
             name: name.Trim()
         );
 
-        // Auto-create default lists from project settings
         var namesList = defaultListNames.ToList();
         var totalLists = namesList.Count;
 
@@ -84,7 +74,7 @@ public sealed class Board : AuditableEntity
         return board;
     }
 
-    // ── Business ───────────────────────────────────────────────────────────────
+    // ── Business 
 
     public Result<Updated> Rename(string name)
     {
@@ -103,7 +93,7 @@ public sealed class Board : AuditableEntity
         if (HasListWithName(name))
             return ListErrors.DuplicateName;
 
-        var displayOrder = _lists.Count;  // next position after existing lists
+        var displayOrder = _lists.Count; 
 
         var listResult = List.Create(
             boardId: Id,
@@ -134,7 +124,7 @@ public sealed class Board : AuditableEntity
 
         _lists.Remove(list);
 
-        // Reorder remaining lists to fill the gap
+       
         ReorderLists();
 
         return Result.Updated;
@@ -144,7 +134,7 @@ public sealed class Board : AuditableEntity
     {
         var ids = orderedListIds.ToList();
 
-        // Make sure all provided IDs exist on this board
+        
         if (!AreValidListIds(ids))
             return BoardErrors.InvalidListOrder;
 
@@ -166,7 +156,7 @@ public sealed class Board : AuditableEntity
         if (list is null)
             return ListErrors.NotFound;
 
-        // Check duplicate name — but exclude the list being renamed
+       
         if (_lists.Any(l => l.Id != listId && l.Name.Equals(name.Trim(), StringComparison.OrdinalIgnoreCase)))
             return ListErrors.DuplicateName;
 
@@ -186,7 +176,7 @@ public sealed class Board : AuditableEntity
     public List? GetCompletedList() =>
         _lists.FirstOrDefault(l => l.IsCompletedList);
 
-    // ── Private Helpers ────────────────────────────────────────────────────────
+    // ── Private Helpers ─
 
     private List? FindList(Guid listId) =>
         _lists.FirstOrDefault(l => l.Id == listId);
@@ -204,7 +194,7 @@ public sealed class Board : AuditableEntity
             ordered[i].SetDisplayOrder(i);
     }
 
-    // ── Private Validation ─────────────────────────────────────────────────────
+    // ── Private Validation 
 
     private static bool IsValidId(Guid id) => id != Guid.Empty;
 }

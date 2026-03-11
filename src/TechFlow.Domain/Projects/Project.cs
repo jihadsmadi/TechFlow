@@ -50,7 +50,7 @@ public sealed class Project : AuditableEntity
         Settings = ProjectSetting.CreateDefault();
     }
 
-    // ── Factory ────────────────────────────────────────────────────────────────
+    // ── Factory 
 
     public static Result<Project> Create(
         Guid companyId,
@@ -78,7 +78,7 @@ public sealed class Project : AuditableEntity
 
         var colorResult = color is not null
             ? ProjectColor.Create(color)
-            : ProjectColor.Default();  // use default if not provided
+            : ProjectColor.Default();  
 
         if (colorResult.IsFailure)
             return colorResult.TopError;
@@ -94,12 +94,18 @@ public sealed class Project : AuditableEntity
             endDate: endDate
         );
 
+        var creatorMember = ProjectMember.Create(project.Id, createdByUserId, createdByUserId);
+        if (creatorMember.IsFailure)
+            return creatorMember.TopError;
+
+        project._members.Add(creatorMember.Value);
+
         project.AddDomainEvent(new ProjectCreatedEvent(project.Id, project.CompanyId, project.Name));
 
         return project;
     }
 
-    // ── Business ───────────────────────────────────────────────────────────────
+    // ── Business 
 
     public Result<Updated> Update(
         string name,
@@ -215,9 +221,10 @@ public sealed class Project : AuditableEntity
     }
 
     public bool IsMember(Guid userId) =>
-        _members.Any(m => m.UserId == userId) || userId == CreatedByUserId;
+        _members.Any(m => m.UserId == userId);// || userId == CreatedByUserId
+    public bool IsCreator(Guid userId) => userId == CreatedByUserId;
 
-    // ── Private Validation ─────────────────────────────────────────────────────
+    // ── Private Validation 
 
     private static bool IsValidId(Guid id) => id != Guid.Empty;
 

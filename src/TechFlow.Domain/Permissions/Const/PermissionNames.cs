@@ -11,6 +11,7 @@ public static class PermissionNames
     // Company
     public const string CompanyRead = "company.read";
     public const string CompanyUpdate = "company.update";
+    public const string CompanyCreate = "company.create";
     public const string CompanyManageSettings = "company.manage_settings";
     public const string CompanyManageFlags = "company.manage_flags";
 
@@ -28,6 +29,20 @@ public static class PermissionNames
     public const string ProjectsDelete = "projects.delete";
     public const string ProjectsManageMembers = "projects.manage_members";
 
+    // Roles
+    public const string RolesRead = "roles.read";
+    public const string RolesCreate = "roles.create";
+    public const string RolesUpdate = "roles.update";
+    public const string RolesDelete = "roles.delete";
+    public const string RolesAssignPermission = "roles.assign_permission";
+    public const string RolesRevokePermission = "roles.revoke_permission";
+
+    // Permissions
+    public const string PermissionsRead = "permissions.read";
+    public const string PermissionsCreate = "permissions.create";
+    public const string PermissionsUpdate = "permissions.update";
+    public const string PermissionsDelete = "permissions.delete";
+
     // Tasks
     public const string TasksRead = "tasks.read";
     public const string TasksCreate = "tasks.create";
@@ -40,6 +55,7 @@ public static class PermissionNames
     [
         CompanyRead,
         CompanyUpdate,
+        CompanyCreate,
         CompanyManageSettings,
         CompanyManageFlags,
 
@@ -54,6 +70,18 @@ public static class PermissionNames
         ProjectsArchive,
         ProjectsDelete,
         ProjectsManageMembers,
+
+        RolesRead,
+        RolesCreate,
+        RolesUpdate,
+        RolesDelete,
+        RolesAssignPermission,
+        RolesRevokePermission,
+
+        PermissionsRead,
+        PermissionsCreate,
+        PermissionsUpdate,
+        PermissionsDelete,
 
         TasksRead,
         TasksCreate,

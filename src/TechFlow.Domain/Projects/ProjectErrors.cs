@@ -50,4 +50,18 @@ public static class ProjectErrors
     // General
     public static readonly Error NotFound =
         Error.NotFound("Project.NotFound", "Project was not found.");
+
+    public static readonly Error AccessDenied =
+    Error.Forbidden("Project.AccessDenied",
+        "You do not have access to this project.");
+
+    // Name conflict
+    public static readonly Error NameAlreadyExists =
+        Error.Conflict("Project.NameAlreadyExists",
+            "A project with this name already exists in the company.");
+
+    // Company mismatch
+    public static readonly Error UserNotInCompany =
+        Error.Validation("Project.UserNotInCompany",
+            "The user is not part of the company associated with this project.");
 }

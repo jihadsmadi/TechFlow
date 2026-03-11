@@ -1,5 +1,5 @@
 ﻿using TechFlow.Application.Features.Permissions.Mappers;
-using TechFlow.Application.Features.Roles.DTOs;
+using TechFlow.Application.Features.Roles.Dtos;
 using TechFlow.Domain.Roles;
 
 namespace TechFlow.Application.Features.Roles.Mappers;

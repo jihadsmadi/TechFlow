@@ -1,4 +1,4 @@
-﻿using TechFlow.Application.Features.Permissions.DTOs;
+﻿using TechFlow.Application.Features.Permissions.Dtos;
 using TechFlow.Domain.Permissions;
 
 namespace TechFlow.Application.Features.Permissions.Mappers;

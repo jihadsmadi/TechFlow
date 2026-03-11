@@ -5,7 +5,7 @@ using System.Text;
 using TechFlow.Application.Common.Interfaces.Repositories;
 using TechFlow.Application.Features.Companies.Dtos;
 using TechFlow.Application.Features.Companies.Mappers;
-using TechFlow.Application.Features.Permissions.DTOs;
+using TechFlow.Application.Features.Permissions.Dtos;
 using TechFlow.Application.Features.Permissions.Queries.GetPermissionById;
 using TechFlow.Domain.Common.Results;
 

@@ -1,6 +1,6 @@
 ﻿using TechFlow.Application.Features.Companies.Dtos;
 using TechFlow.Application.Features.Permissions.Mappers;
-using TechFlow.Application.Features.Roles.DTOs;
+using TechFlow.Application.Features.Roles.Dtos;
 using TechFlow.Domain.Companies;
 using TechFlow.Domain.Roles;
 

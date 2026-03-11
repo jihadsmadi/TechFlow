@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using TechFlow.Application.Common.Constants;
 using TechFlow.Application.Common.Interfaces;
-using TechFlow.Application.Features.Permissions.DTOs;
+using TechFlow.Application.Features.Permissions.Dtos;
 using TechFlow.Domain.Common.Results;
 
 namespace TechFlow.Application.Features.Permissions.Commands.UpdatePermissionDescription;

@@ -2,7 +2,7 @@
 using TechFlow.Application.Common.Behaviours;
 using TechFlow.Application.Common.Constants;
 using TechFlow.Application.Common.Interfaces;
-using TechFlow.Application.Features.Roles.DTOs;
+using TechFlow.Application.Features.Roles.Dtos;
 using TechFlow.Domain.Common.Results;
 
 namespace TechFlow.Application.Features.Roles.Commands.CreateRole;

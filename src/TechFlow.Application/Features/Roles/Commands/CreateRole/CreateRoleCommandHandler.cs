@@ -3,7 +3,7 @@ using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
 using TechFlow.Application.Common.Constants;
 using TechFlow.Application.Common.Interfaces.Repositories;
-using TechFlow.Application.Features.Roles.DTOs;
+using TechFlow.Application.Features.Roles.Dtos;
 using TechFlow.Application.Features.Roles.Mappers;
 using TechFlow.Domain.Common.Results;
 using TechFlow.Domain.Roles;

@@ -1,4 +1,4 @@
-﻿namespace TechFlow.Application.Features.Roles.DTOs;
+﻿namespace TechFlow.Application.Features.Roles.Dtos;
 
 public sealed class RoleSummaryDto
 {

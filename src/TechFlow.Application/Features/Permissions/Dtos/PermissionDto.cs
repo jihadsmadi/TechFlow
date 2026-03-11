@@ -1,4 +1,4 @@
-﻿namespace TechFlow.Application.Features.Permissions.DTOs;
+﻿namespace TechFlow.Application.Features.Permissions.Dtos;
 
 public sealed class PermissionDto
 {

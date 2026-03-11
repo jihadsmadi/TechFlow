@@ -1,6 +1,6 @@
-﻿using TechFlow.Application.Features.Permissions.DTOs;
+﻿using TechFlow.Application.Features.Permissions.Dtos;
 
-namespace TechFlow.Application.Features.Roles.DTOs;
+namespace TechFlow.Application.Features.Roles.Dtos;
 
 public sealed class RoleDto
 {

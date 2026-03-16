@@ -6,7 +6,7 @@ using TechFlow.Domain.Common.Results.Abstractions;
 
 namespace TechFlow.Application.Common.Behaviours;
 
-public class CachingBehavior<TRequest, TResponse>(
+public sealed class CachingBehavior<TRequest, TResponse>(
     HybridCache cache,
     ILogger<CachingBehavior<TRequest, TResponse>> logger)
     : IPipelineBehavior<TRequest, TResponse>

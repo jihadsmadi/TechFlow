@@ -62,7 +62,8 @@ public sealed class ProjectsController(ISender sender) : ControllerBase
         CancellationToken ct)
     {
         var result = await _sender.Send(command, ct);
-        return result.ToActionResult(this);
+        return result.ToCreatedResult(this, nameof(GetById),
+            new { id = result.Value.Id });
     }
 
     // PUT api/projects/{id}

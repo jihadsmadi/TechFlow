@@ -17,9 +17,8 @@ namespace TechFlow.API.Controllers;
 [ApiController]
 [Route("api/projects/{projectId:guid}/board")]
 [Authorize]
-public sealed class BoardsController(ISender sender) : ControllerBase
+public sealed class BoardsController(ISender _sender) : ControllerBase
 {
-    private readonly ISender _sender = sender;
 
     // GET api/projects/{projectId}/board
     [HasPermission(PermissionNames.ProjectsRead)]

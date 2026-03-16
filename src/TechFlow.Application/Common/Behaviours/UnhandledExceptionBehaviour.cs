@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace TechFlow.Application.Common.Behaviours;
 
-public class UnhandledExceptionBehaviour<TRequest, TResponse>(ILogger<TRequest> logger)
+public sealed class UnhandledExceptionBehaviour<TRequest, TResponse>(ILogger<TRequest> logger)
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {

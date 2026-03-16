@@ -10,6 +10,7 @@ public sealed class UnitOfWork(ApplicationDbContext context) : IUnitOfWork
     private IUserRepository?       _users;
     private IProjectRepository?    _projects;
     private IBoardRepository?      _boards;
+    private ITaskRepository?       _tasks;
 
     // ── Properties 
 
@@ -27,6 +28,10 @@ public sealed class UnitOfWork(ApplicationDbContext context) : IUnitOfWork
         _projects ??= new ProjectRepository(context);
     public IBoardRepository Boards =>
         _boards ??= new BoardRepository(context);
+
+    public ITaskRepository Tasks => 
+        _tasks ??= new TaskRepository(context);
+
     // ── Persistence 
 
     public async Task<int> SaveChangesAsync(CancellationToken ct = default)

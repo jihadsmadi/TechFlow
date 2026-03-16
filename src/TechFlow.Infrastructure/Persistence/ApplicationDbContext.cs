@@ -44,9 +44,7 @@ public sealed class ApplicationDbContext(
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
-        // ── Ignore until Phase 3 ──────────────────────────────────────────────
         builder.Ignore<Domain.Tasks.Attachments.Attachment>();
-        builder.Ignore<Domain.Tasks.TaskAssignments.TaskAssignment>();
         builder.Ignore<Domain.Tasks.CustomeFields.CustomFieldDefinition>();
         builder.Ignore<Domain.Tasks.CustomeFields.CustomFieldValue>();
         builder.Ignore<Domain.Tasks.Comments.Comment>();

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TechFlow.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using TechFlow.Infrastructure.Persistence;
 namespace TechFlow.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260315181846_AddTasks")]
+    partial class AddTasks
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -562,34 +565,6 @@ namespace TechFlow.Infrastructure.Persistence.Migrations
                     b.ToTable("Tasks", (string)null);
                 });
 
-            modelBuilder.Entity("TechFlow.Domain.Tasks.TaskAssignments.TaskAssignment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("AssignedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("AssignedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TaskId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TaskId");
-
-                    b.HasIndex("TaskId", "UserId")
-                        .IsUnique();
-
-                    b.ToTable("TaskAssignments", (string)null);
-                });
-
             modelBuilder.Entity("TechFlow.Domain.Users.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1045,15 +1020,6 @@ namespace TechFlow.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TechFlow.Domain.Tasks.TaskAssignments.TaskAssignment", b =>
-                {
-                    b.HasOne("TechFlow.Domain.Tasks.Task", null)
-                        .WithMany("Assignments")
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("TechFlow.Domain.Users.User", b =>
                 {
                     b.OwnsOne("TechFlow.Domain.Users.UserPreferences", "Preferences", b1 =>
@@ -1148,8 +1114,6 @@ namespace TechFlow.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("TechFlow.Domain.Tasks.Task", b =>
                 {
-                    b.Navigation("Assignments");
-
                     b.Navigation("Subtasks");
                 });
 

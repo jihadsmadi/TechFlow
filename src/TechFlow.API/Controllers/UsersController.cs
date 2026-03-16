@@ -1,20 +1,20 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TechFlow.API.Authorization;
 using TechFlow.API.Extensions;
 using TechFlow.Application.Common.Interfaces;
+using TechFlow.Application.Features.Tasks.Queries.GetMyTasks;
 using TechFlow.Application.Features.Users.Queries.GetCurrentUser;
+using TechFlow.Domain.Permissions.Const;
 
 namespace TechFlow.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public sealed class UsersController(ISender sender, IUser currentUser) : ControllerBase
+public sealed class UsersController(ISender _sender, IUser _currentUser) : ControllerBase
 {
-    private readonly ISender _sender = sender;
-    private readonly IUser _currentUser = currentUser;
-
     // GET api/users/me
     [HttpGet("me")]
     public async Task<IActionResult> GetCurrentUser(CancellationToken ct)
@@ -22,9 +22,19 @@ public sealed class UsersController(ISender sender, IUser currentUser) : Control
         if (_currentUser.Id is null)
             return Unauthorized();
 
+
         var result = await _sender.Send(
             new GetCurrentUserQuery(_currentUser.Id.Value), ct);
 
+        return result.ToActionResult(this);
+    }
+    [HttpGet("me/tasks")]
+    [HasPermission(PermissionNames.TasksRead)]
+    public async Task<IActionResult> GetMyTasks(
+        [FromQuery] bool includeCompleted = false,
+        CancellationToken ct = default)
+    {
+        var result = await _sender.Send(new GetMyTasksQuery(includeCompleted), ct);
         return result.ToActionResult(this);
     }
 }

@@ -42,6 +42,17 @@ public static class ResultExtensions
         return result.ToActionResult(controller);
     }
 
+    public static IActionResult ToCreatedResult<T>(
+    this Result<T> result,
+    ControllerBase controller,
+    string actionName,
+    object routeValues)
+    {
+        if (result.IsSuccess)
+            return controller.CreatedAtAction(actionName, routeValues, result.Value);
+
+        return result.ToActionResult(controller);
+    }
     // ── Private Builders 
 
     private static ProblemDetails BuildProblem(Error error, int status) => new()

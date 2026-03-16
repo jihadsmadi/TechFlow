@@ -1,9 +1,5 @@
 ﻿namespace TechFlow.Domain.Tasks.ValueObjects;
 
-/// <summary>
-/// Priority levels for a task — ordered from lowest to highest urgency.
-/// Stored as string in DB via EF Core HasConversion.
-/// </summary>
 public static class Priority
 {
     public const string Low = "Low";

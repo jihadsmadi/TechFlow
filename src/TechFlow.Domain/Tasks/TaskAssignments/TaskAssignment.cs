@@ -3,10 +3,6 @@ using TechFlow.Domain.Common.Results;
 
 namespace TechFlow.Domain.Tasks.TaskAssignments;
 
-/// <summary>
-/// Records that a specific user is assigned to a specific task.
-/// A task can have multiple assignees via this junction entity.
-/// </summary>
 public sealed class TaskAssignment : Entity
 {
     public Guid TaskId { get; private set; }
@@ -25,8 +21,6 @@ public sealed class TaskAssignment : Entity
         AssignedAt = DateTimeOffset.UtcNow;
     }
 
-    // ── Factory ────────────────────────────────────────────────────────────────
-
     internal static Result<TaskAssignment> Create(Guid taskId, Guid userId, Guid assignedByUserId)
     {
         if (!IsValidId(taskId))
@@ -40,8 +34,6 @@ public sealed class TaskAssignment : Entity
 
         return new TaskAssignment(Guid.NewGuid(), taskId, userId, assignedByUserId);
     }
-
-    // ── Private Validation ─────────────────────────────────────────────────────
 
     private static bool IsValidId(Guid id) => id != Guid.Empty;
 }

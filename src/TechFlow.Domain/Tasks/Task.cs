@@ -1,5 +1,4 @@
-﻿using System.Xml.Linq;
-using TechFlow.Domain.Common;
+﻿using TechFlow.Domain.Common;
 using TechFlow.Domain.Common.Constants;
 using TechFlow.Domain.Common.Results;
 using TechFlow.Domain.Tasks.Attachments;
@@ -14,33 +13,29 @@ namespace TechFlow.Domain.Tasks;
 
 public sealed class Task : AuditableEntity
 {
-    // ── Identity & Location ────────────────────────────────────────────────────
+    // ── Identity & Location
     public Guid ListId { get; private set; }
-    public Guid CompanyId { get; private set; }       // denormalized
-    public Guid ProjectId { get; private set; }       // denormalized
+    public Guid CompanyId { get; private set; }
+    public Guid ProjectId { get; private set; }
     public Guid CreatedByUserId { get; private set; }
 
-    // ── Core Fields ────────────────────────────────────────────────────────────
+    // ── Core Fields
     public string Title { get; private set; } = string.Empty;
     public string? Description { get; private set; }
     public string Priority { get; private set; } = ValueObjects.Priority.Medium;
     public string Type { get; private set; } = TaskType.Feature;
-
-    // ── Display Order — double for fractional indexing ─────────────────────────
-    // Allows O(1) drag-and-drop reordering: position = (prev + next) / 2
-    // No need to shift other tasks on every move
     public double DisplayOrder { get; private set; }
 
-    // ── Time ──────────────────────────────────────────────────────────────────
+    // ── Time
     public DateTimeOffset? DueDate { get; private set; }
     public int? EstimatedMinutes { get; private set; }
     public int? ActualMinutes { get; private set; }
 
-    // ── Completion ────────────────────────────────────────────────────────────
+    // ── Completion
     public bool IsCompleted { get; private set; } = false;
     public DateTimeOffset? CompletedAt { get; private set; }
 
-    // ── Collections ───────────────────────────────────────────────────────────
+    // ── Collections
     private readonly List<TaskAssignment> _assignments = [];
     private readonly List<Comment> _comments = [];
     private readonly List<Attachment> _attachments = [];
@@ -64,7 +59,10 @@ public sealed class Task : AuditableEntity
         string title,
         string priority,
         string type,
-        double displayOrder)
+        double displayOrder,
+        string? description,
+        DateTimeOffset? dueDate,
+        int? estimatedMinutes)
         : base(id)
     {
         ListId = listId;
@@ -75,9 +73,12 @@ public sealed class Task : AuditableEntity
         Priority = priority;
         Type = type;
         DisplayOrder = displayOrder;
+        Description = description;
+        DueDate = dueDate;
+        EstimatedMinutes = estimatedMinutes;
     }
 
-    // ── Factory ────────────────────────────────────────────────────────────────
+    // ── Factory
 
     public static Result<Task> Create(
         Guid listId,
@@ -87,7 +88,10 @@ public sealed class Task : AuditableEntity
         string title,
         string priority = ValueObjects.Priority.Medium,
         string type = TaskType.Feature,
-        double displayOrder = 0)
+        double displayOrder = 0,
+        string? description = null,
+        DateTimeOffset? dueDate = null,
+        int? estimatedMinutes = null)
     {
         if (!IsValidId(listId))
             return TaskErrors.ListIdRequired;
@@ -113,6 +117,9 @@ public sealed class Task : AuditableEntity
         if (!TaskType.IsValid(type))
             return TaskErrors.InvalidType(type);
 
+        if (estimatedMinutes.HasValue && !IsValidMinutes(estimatedMinutes.Value))
+            return TaskErrors.InvalidEstimate;
+
         var task = new Task(
             id: Guid.NewGuid(),
             listId: listId,
@@ -122,14 +129,17 @@ public sealed class Task : AuditableEntity
             title: title.Trim(),
             priority: priority,
             type: type,
-            displayOrder: displayOrder);
+            displayOrder: displayOrder,
+            description: description?.Trim(),
+            dueDate: dueDate,
+            estimatedMinutes: estimatedMinutes);
 
         task.AddDomainEvent(new TaskCreatedEvent(task.Id, task.ProjectId, task.CompanyId, task.Title));
 
         return task;
     }
 
-    // ── Business — Core ────────────────────────────────────────────────────────
+    // ── Business — Core
 
     public Result<Updated> Update(
         string title,
@@ -164,27 +174,20 @@ public sealed class Task : AuditableEntity
         return Result.Updated;
     }
 
-    /// <summary>
-    /// Moves task to a new list with fractional display order.
-    /// Caller provides the new display order calculated as (prevOrder + nextOrder) / 2.
-    /// </summary>
-    public Result<Updated> MoveToList(Guid newListId, double newDisplayOrder)
+    public Result<Updated> MoveToList(Guid newListId, double? prevOrder, double? nextOrder)
     {
         if (!IsValidId(newListId))
             return TaskErrors.ListIdRequired;
 
         var previousListId = ListId;
         ListId = newListId;
-        DisplayOrder = newDisplayOrder;
+        DisplayOrder = CalculateDisplayOrder(prevOrder, nextOrder);
 
         AddDomainEvent(new TaskMovedEvent(Id, previousListId, newListId, ProjectId));
 
         return Result.Updated;
     }
 
-    /// <summary>
-    /// Reorders task within the same list using fractional indexing.
-    /// </summary>
     public Result<Updated> Reorder(double newDisplayOrder)
     {
         DisplayOrder = newDisplayOrder;
@@ -224,7 +227,7 @@ public sealed class Task : AuditableEntity
         return Result.Updated;
     }
 
-    // ── Business — Assignments ─────────────────────────────────────────────────
+    // ── Business — Assignments
 
     public Result<Updated> AssignUser(Guid userId, Guid assignedByUserId)
     {
@@ -255,7 +258,7 @@ public sealed class Task : AuditableEntity
         return Result.Updated;
     }
 
-    // ── Business — Subtasks ────────────────────────────────────────────────────
+    // ── Business — Subtasks
 
     public Result<Subtask> AddSubtask(Guid createdByUserId, string title)
     {
@@ -306,14 +309,10 @@ public sealed class Task : AuditableEntity
         return Result.Deleted;
     }
 
-    /// <summary>
-    /// Returns subtask completion progress.
-    /// e.g. "3/5" → 3 completed out of 5 total
-    /// </summary>
     public (int Completed, int Total) GetSubtaskProgress()
         => (_subtasks.Count(s => s.IsCompleted), _subtasks.Count);
 
-    // ── Business — Comments ────────────────────────────────────────────────────
+    // ── Comments
 
     public Result<Comment> AddComment(Guid userId, string content)
     {
@@ -341,7 +340,7 @@ public sealed class Task : AuditableEntity
         return Result.Deleted;
     }
 
-    // ── Business — Attachments ─────────────────────────────────────────────────
+    // ── Attachments
 
     public Result<Attachment> AddAttachment(
         Guid uploadedByUserId,
@@ -370,7 +369,7 @@ public sealed class Task : AuditableEntity
         return Result.Deleted;
     }
 
-    // ── Business — Custom Fields ───────────────────────────────────────────────
+    // ── Custom Fields
 
     public Result<Updated> SetCustomFieldValue(Guid definitionId, string value)
     {
@@ -387,17 +386,23 @@ public sealed class Task : AuditableEntity
         return Result.Updated;
     }
 
-    // ── Helpers ────────────────────────────────────────────────────────────────
+    // ── Helpers
 
     public bool IsAssigned(Guid userId) =>
         _assignments.Any(a => a.UserId == userId);
 
-    // ── Private Helpers ────────────────────────────────────────────────────────
-
     private Subtask? FindSubtask(Guid subtaskId) =>
         _subtasks.FirstOrDefault(s => s.Id == subtaskId);
 
-    // ── Private Validation ─────────────────────────────────────────────────────
+    // ── Private
+
+    private static double CalculateDisplayOrder(double? prev, double? next) => (prev, next) switch
+    {
+        (null, null) => 1.0,
+        (null, _) => next!.Value / 2,
+        (_, null) => prev!.Value + 1.0,
+        _ => (prev!.Value + next!.Value) / 2
+    };
 
     private static bool IsValidId(Guid id) => id != Guid.Empty;
     private static bool IsValidMinutes(int mins) => mins > 0;

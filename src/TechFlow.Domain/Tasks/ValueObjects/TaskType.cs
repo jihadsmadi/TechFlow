@@ -1,9 +1,5 @@
 ﻿namespace TechFlow.Domain.Tasks.ValueObjects;
 
-/// <summary>
-/// Classifies what kind of work a task represents.
-/// Drives which custom fields are shown in the UI.
-/// </summary>
 public static class TaskType
 {
     public const string Bug = "Bug";

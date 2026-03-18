@@ -1,5 +1,4 @@
-﻿
-namespace TechFlow.Domain.Permissions.Const;
+﻿namespace TechFlow.Domain.Permissions.Const;
 
 /// <summary>
 /// All permission names in the system.
@@ -51,43 +50,21 @@ public static class PermissionNames
     public const string TasksAssign = "tasks.assign";
     public const string TasksMove = "tasks.move";
 
+    // Sprints
+    public const string SprintsRead = "sprints.read";
+    public const string SprintsCreate = "sprints.create";
+    public const string SprintsUpdate = "sprints.update";
+    public const string SprintsDelete = "sprints.delete";
+    public const string SprintsManage = "sprints.manage"; // start, end, cancel
+
     public static readonly IReadOnlyList<string> All =
     [
-        CompanyRead,
-        CompanyUpdate,
-        CompanyCreate,
-        CompanyManageSettings,
-        CompanyManageFlags,
-
-        UsersRead,
-        UsersInvite,
-        UsersDeactivate,
-        UsersManageRoles,
-
-        ProjectsRead,
-        ProjectsCreate,
-        ProjectsUpdate,
-        ProjectsArchive,
-        ProjectsDelete,
-        ProjectsManageMembers,
-
-        RolesRead,
-        RolesCreate,
-        RolesUpdate,
-        RolesDelete,
-        RolesAssignPermission,
-        RolesRevokePermission,
-
-        PermissionsRead,
-        PermissionsCreate,
-        PermissionsUpdate,
-        PermissionsDelete,
-
-        TasksRead,
-        TasksCreate,
-        TasksUpdate,
-        TasksDelete,
-        TasksAssign,
-        TasksMove
+        CompanyRead, CompanyUpdate, CompanyCreate, CompanyManageSettings, CompanyManageFlags,
+        UsersRead, UsersInvite, UsersDeactivate, UsersManageRoles,
+        ProjectsRead, ProjectsCreate, ProjectsUpdate, ProjectsArchive, ProjectsDelete, ProjectsManageMembers,
+        RolesRead, RolesCreate, RolesUpdate, RolesDelete, RolesAssignPermission, RolesRevokePermission,
+        PermissionsRead, PermissionsCreate, PermissionsUpdate, PermissionsDelete,
+        TasksRead, TasksCreate, TasksUpdate, TasksDelete, TasksAssign, TasksMove,
+        SprintsRead, SprintsCreate, SprintsUpdate, SprintsDelete, SprintsManage
     ];
 }

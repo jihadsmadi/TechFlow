@@ -1,4 +1,4 @@
-﻿namespace TechFlow.Application.Features.Tasks.DTOs;
+﻿namespace TechFlow.Application.Features.Tasks.Dtos;
 
 public sealed record TaskDto(
     Guid Id,

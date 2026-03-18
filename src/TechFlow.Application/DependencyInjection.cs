@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using TechFlow.Application.Common.Behaviours;
+using TechFlow.Application.Common.Services;
 
 namespace TechFlow.Application;
 
@@ -27,6 +28,8 @@ public static class DependencyInjection
         // ── HybridCache 
         services.AddHybridCache();
 
+        // ── Services
+        services.AddScoped<ProjectAccessService>();
         return services;
     }
 }

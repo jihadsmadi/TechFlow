@@ -62,9 +62,6 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITokenService, TokenService>();
 
-        // ── Services
-        services.AddScoped<ProjectAccessService>();
-
         // ── Seeder 
         services.AddScoped<ApplicationDbContextInitialiser>();
 

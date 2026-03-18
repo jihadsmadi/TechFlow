@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TechFlow.Application.Common.Interfaces.Repositories;
+using TechFlow.Domain.Sprints.ValueObjects;
 
 
 namespace TechFlow.Infrastructure.Persistence.Repositories;
@@ -28,7 +29,14 @@ public sealed class TaskRepository(ApplicationDbContext context) : Repository<Do
             .Where(t => t.ProjectId == projectId)
             .OrderBy(t => t.DisplayOrder)
             .ToListAsync(ct);
-
+    public async Task<List<Domain.Tasks.Task>> GetByIdsAsync(
+        IEnumerable<Guid> taskIds,
+        CancellationToken ct = default)
+        => await context.Tasks
+            .AsNoTracking()
+            .Include(t => t.Subtasks)
+            .Where(t => taskIds.Contains(t.Id))
+            .ToListAsync(ct);
     public async Task<List<Domain.Tasks.Task>> GetByAssigneeAsync(
         Guid userId,
         Guid companyId,
@@ -44,6 +52,48 @@ public sealed class TaskRepository(ApplicationDbContext context) : Repository<Do
             .OrderBy(t => t.DueDate)
             .ThenBy(t => t.Priority)
             .ToListAsync(ct);
+    public async Task<List<Domain.Tasks.Task>> GetBacklogTasksAsync(
+    Guid projectId,
+    CancellationToken ct = default)
+    => await context.Tasks
+        .AsNoTracking()
+        .Include(t => t.Subtasks)
+        .Where(t =>
+            t.ProjectId == projectId &&
+            !t.IsCompleted &&
+            !context.SprintItems.Any(si =>
+                si.TaskId == t.Id &&
+                context.Sprints.Any(s =>
+                    s.Id == si.SprintId &&
+                    (s.Status == SprintStatus.Active ||
+                     s.Status == SprintStatus.Planned))))
+        .OrderBy(t => t.DisplayOrder)
+        .ToListAsync(ct);
+
+    public async Task<Dictionary<Guid, (int Total, int Completed)>> GetCountsBySprintIdsAsync(
+        IEnumerable<Guid> sprintIds,
+        CancellationToken ct = default)
+    {
+        var counts = await context.SprintItems
+            .Where(si => sprintIds.Contains(si.SprintId))
+            .Join(context.Tasks,
+                si => si.TaskId,
+                t => t.Id,
+                (si, t) => new { si.SprintId, t.IsCompleted })
+            .GroupBy(x => x.SprintId)
+            .Select(g => new
+            {
+                SprintId = g.Key,
+                Total = g.Count(),
+                Completed = g.Count(x => x.IsCompleted)
+            })
+            .ToListAsync(ct);
+
+        return counts.ToDictionary(
+            x => x.SprintId,
+            x => (x.Total, x.Completed));
+    }
+
     public async Task<double> GetMaxDisplayOrderInListAsync(Guid listId, CancellationToken ct = default)
     {
         var max = await context.Tasks

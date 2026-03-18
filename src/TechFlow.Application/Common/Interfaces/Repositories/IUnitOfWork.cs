@@ -13,6 +13,7 @@ public interface IUnitOfWork
     IProjectRepository Projects { get; }
     IBoardRepository Boards { get; }
     ITaskRepository Tasks { get; }
-
+    ISprintRepository Sprints { get; }
+        
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

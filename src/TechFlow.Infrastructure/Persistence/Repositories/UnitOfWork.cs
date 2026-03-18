@@ -32,6 +32,8 @@ public sealed class UnitOfWork(ApplicationDbContext context) : IUnitOfWork
     public ITaskRepository Tasks => 
         _tasks ??= new TaskRepository(context);
 
+    public ISprintRepository Sprints =>
+        new SprintRepository(context);
     // ── Persistence 
 
     public async Task<int> SaveChangesAsync(CancellationToken ct = default)

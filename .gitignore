@@ -19,13 +19,11 @@
 *.csproj.user
 
 # Angular
-client/node_modules/
-client/dist/
-client/tmp/
-client/out-tsc/
-client/*.log
-client/.angular/
-client/.env
+client/techflow-web/node_modules/
+client/techflow-web/dist/
+client/techflow-web/.angular/
+client/techflow-web/*.log
+client/techflow-web/.env
 
 # OS
 .DS_Store

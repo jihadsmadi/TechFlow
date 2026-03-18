@@ -1,0 +1,37 @@
+/* You can add global styles to this file, and also import other style files */
+:root {
+  --bg:           #0a0a0f;
+  --bg-card:      #111118;
+  --bg-card-2:    #16161f;
+  --border:       #ffffff0f;
+  --border-hover: #ffffff1a;
+  --text:         #f0f0f5;
+  --text-muted:   #6b6b80;
+  --text-dim:     #9999aa;
+  --accent:       #7c6af7;
+  --accent-glow:  #7c6af733;
+  --accent-2:     #22d3a0;
+  --red:          #f87171;
+  --yellow:       #fbbf24;
+  --green:        #34d399;
+  --radius:       12px;
+  --radius-sm:    8px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}

@@ -19,11 +19,11 @@
 *.csproj.user
 
 # Angular
+# Angular / Node
 client/techflow-web/node_modules/
 client/techflow-web/dist/
 client/techflow-web/.angular/
-client/techflow-web/*.log
-client/techflow-web/.env
+client/techflow-web/*.js.map
 
 # OS
 .DS_Store

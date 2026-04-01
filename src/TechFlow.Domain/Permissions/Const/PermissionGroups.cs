@@ -8,6 +8,7 @@ public static class PermissionGroups
     public const string Roles = "Roles";
     public const string Tasks = "Tasks";
     public const string Users = "Users";
+    public const string Sprints = "Sprints";
     public const string Reports = "Reports";
 
     public static readonly IReadOnlyList<string> All =
@@ -18,6 +19,7 @@ public static class PermissionGroups
         Roles,
         Tasks,
         Users,
+        Sprints,
         Reports
     ];
 }

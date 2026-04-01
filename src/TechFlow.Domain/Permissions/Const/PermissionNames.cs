@@ -55,7 +55,7 @@ public static class PermissionNames
     public const string SprintsCreate = "sprints.create";
     public const string SprintsUpdate = "sprints.update";
     public const string SprintsDelete = "sprints.delete";
-    public const string SprintsManage = "sprints.manage"; // start, end, cancel
+    public const string SprintsManage = "sprints.manage"; 
 
     public static readonly IReadOnlyList<string> All =
     [

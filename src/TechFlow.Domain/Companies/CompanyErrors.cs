@@ -31,6 +31,10 @@ public static class CompanyErrors
 
     public static readonly Error SlugAlreadyExists =
         Error.Conflict("Company.SlugAlradyExists", "A Company with this slug already exists.");
+
+    public static readonly Error ContactEmailAlreadyExists =
+    Error.Conflict("Company.ContactEmailAlreadyExists",
+        "A company with this contact email already exists.");
     public static Error InvalidDateFormat(string format) =>
         Error.Validation("Company.InvalidDateFormat", $"'{format}' is not a valid date format. Valid options: DD/MM/YYYY, MM/DD/YYYY, YYYY-MM-DD.");
 

@@ -16,4 +16,7 @@ public sealed class CompanyRepository(ApplicationDbContext context)
     public async Task<bool> ExistsBySlugAsync(string slug, CancellationToken ct = default)
         => await DbSet
             .AnyAsync(c => c.Slug.Value == slug, ct);
+    public async Task<bool> ExistsByContactEmailAsync(string email, CancellationToken ct = default)
+    => await context.Companies
+        .AnyAsync(c => c.ContactEmail == email, ct);
 }

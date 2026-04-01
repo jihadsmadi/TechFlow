@@ -7,7 +7,7 @@ namespace TechFlow.Infrastructure.Persistence.Repositories;
 public sealed class RoleRepository(ApplicationDbContext context)
     : Repository<Role>(context), IRoleRepository
 {
-    public async Task<Role?> GetByNameAsync(string name, CancellationToken ct = default)
+    public async Task<Role?> GetByNameWithPermessionsAsync(string name, CancellationToken ct = default)
         => await DbSet
             .Include(r => r.Permissions)
             .FirstOrDefaultAsync(r => r.Name == name, ct);

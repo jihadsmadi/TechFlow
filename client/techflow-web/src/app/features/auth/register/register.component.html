@@ -1,0 +1,258 @@
+<div class="mesh-bg">
+    <div class="blob blob-violet"></div>
+    <div class="blob blob-emerald"></div>
+    <div class="blob blob-pink"></div>
+</div>
+
+@if (toast()) {
+<div class="toast-container toast-bottom-right">
+    <div class="toast toast-success" [class.is-leaving]="toastLeaving()" role="status" aria-live="polite">
+        <div class="toast-icon toast-icon-success">
+            <span class="material-symbols-outlined">check_circle</span>
+        </div>
+        <div class="toast-content">
+            <p class="toast-title">Success</p>
+            <p class="toast-message">{{ toast() }}</p>
+        </div>
+        <button type="button" class="toast-close" (click)="dismissToast()" aria-label="Close notification">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+</div>
+}
+
+<header class="auth-header">
+    <div class="brand-mark" aria-hidden="true">
+        <span class="material-symbols-outlined">blur_on</span>
+    </div>
+    <span class="brand-name">TechFlow</span>
+
+    <div class="header-action">
+        <span class="header-text">Already have an account?</span>
+        <a routerLink="/login" class="header-link">Sign in</a>
+    </div>
+</header>
+
+<main class="auth-page">
+    <section class="auth-layout">
+        <section class="auth-card glass-card">
+            <div class="stepper" aria-label="Registration steps">
+                <button type="button" class="step-node" (click)="onStepClick(1)" [class.step-node-active]="step() === 1"
+                    [class.step-node-complete]="step() > 1">
+                    <span class="material-symbols-outlined">domain</span>
+                    <span>Workspace</span>
+                </button>
+                <div class="step-rail" aria-hidden="true">
+                    <span class="step-rail-fill" [style.width]="step() === 1 ? '0%' : '100%'"></span>
+                </div>
+                <button type="button" class="step-node" (click)="onStepClick(2)" [class.step-node-active]="step() === 2">
+                    <span class="material-symbols-outlined">badge</span>
+                    <span>Account</span>
+                </button>
+            </div>
+
+            <div class="card-header">
+                <span class="step-tag">Step {{ step() }} of 2</span>
+                @if (step() === 1) {
+                <h2>Create workspace</h2>
+                <p>Define your company and public workspace address.</p>
+                } @else {
+                <h2>Create your account</h2>
+                <p>Set your login details to enter TechFlow.</p>
+                }
+            </div>
+
+            @if (apiError()) {
+            <div class="error-banner">{{ apiError() }}</div>
+            }
+
+            @if (step() === 1) {
+            <form class="form" [formGroup]="step1" (ngSubmit)="goToStep2()" novalidate>
+                <div class="field">
+                    <label class="label" for="companyName">Company name</label>
+                    <div class="input-wrap">
+                        <span class="input-icon material-symbols-outlined">apartment</span>
+                        <input id="companyName" type="text" class="input"
+                            [class.is-error]="companyName.invalid && companyName.touched" [formControl]="companyName"
+                            placeholder="Acme Studio" (input)="onCompanyNameInput($event)" />
+                    </div>
+                    @if (companyName.invalid && companyName.touched) {
+                    <span class="field-error">Company name is required</span>
+                    }
+                </div>
+
+                <div class="field">
+                    <label class="label" for="companySlug">Workspace URL</label>
+                    <div class="input-wrap">
+                        <span class="input-icon material-symbols-outlined">link</span>
+                        <input id="companySlug" type="text" class="input input-mono"
+                            [class.is-error]="companySlug.invalid && companySlug.touched" [formControl]="companySlug"
+                            placeholder="acme-studio" />
+                    </div>
+                    <span class="field-hint">Only lowercase letters, numbers, and hyphens.</span>
+                    @if (companySlug.invalid && companySlug.touched) {
+                    @if (companySlug.errors?.['required']) {
+                    <span class="field-error">Workspace URL is required</span>
+                    } @else if (companySlug.errors?.['pattern']) {
+                    <span class="field-error">Use lowercase letters, numbers, and hyphens only</span>
+                    }
+                    }
+                </div>
+
+                <div class="field-row field-row-step1">
+                    <div class="field">
+                        <label class="label" for="industry">Industry <span class="optional">(optional)</span></label>
+                        <app-techflow-dropdown id="industry" icon="work" placeholder="Select industry"
+                            [options]="industryOptions" [formControl]="industry"></app-techflow-dropdown>
+                    </div>
+
+                    <div class="field">
+                        <label class="label" for="companyEmail">Company email</label>
+                        <div class="input-wrap">
+                            <span class="input-icon material-symbols-outlined">mail</span>
+                            <input id="companyEmail" type="email" class="input"
+                                [class.is-error]="companyEmail.invalid && companyEmail.touched" [formControl]="companyEmail"
+                                placeholder="hello@acme.com" />
+                        </div>
+                        @if (companyEmail.invalid && companyEmail.touched) {
+                        @if (companyEmail.errors?.['required']) {
+                        <span class="field-error">Company email is required</span>
+                        } @else if (companyEmail.errors?.['email']) {
+                        <span class="field-error">Enter a valid email</span>
+                        }
+                        }
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full btn-submit">
+                    Continue
+                    <span class="material-symbols-outlined auth-arrow">arrow_forward</span>
+                </button>
+            </form>
+            }
+
+            @if (step() === 2) {
+            <form class="form" [formGroup]="step2" (ngSubmit)="onRegisterSubmit()" novalidate>
+                <div class="field-row">
+                    <div class="field">
+                        <label class="label" for="firstName">First name</label>
+                        <div class="input-wrap">
+                            <span class="input-icon material-symbols-outlined">person</span>
+                            <input id="firstName" type="text" class="input"
+                                [class.is-error]="firstName.invalid && firstName.touched" [formControl]="firstName"
+                                placeholder="First name" />
+                        </div>
+                        @if (firstName.invalid && firstName.touched) {
+                        <span class="field-error">Required</span>
+                        }
+                    </div>
+
+                    <div class="field">
+                        <label class="label" for="lastName">Last name</label>
+                        <div class="input-wrap">
+                            <span class="input-icon material-symbols-outlined">person</span>
+                            <input id="lastName" type="text" class="input"
+                                [class.is-error]="lastName.invalid && lastName.touched" [formControl]="lastName"
+                                placeholder="Last name" />
+                        </div>
+                        @if (lastName.invalid && lastName.touched) {
+                        <span class="field-error">Required</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="email">Email</label>
+                    <div class="input-wrap">
+                        <span class="input-icon material-symbols-outlined">mail</span>
+                        <input id="email" type="email" class="input" [class.is-error]="email.invalid && email.touched"
+                            [formControl]="email" placeholder="you@company.com" name="email" autocomplete="email" />
+                    </div>
+                    @if (email.invalid && email.touched) {
+                    @if (email.errors?.['required']) {
+                    <span class="field-error">Email is required</span>
+                    } @else if (email.errors?.['email']) {
+                    <span class="field-error">Enter a valid email</span>
+                    }
+                    }
+                </div>
+
+                <div class="field">
+                    <label class="label" for="password">Password</label>
+                    <div class="input-wrap">
+                        <span class="input-icon material-symbols-outlined">lock</span>
+                        <input id="password" [type]="showPassword() ? 'text' : 'password'" class="input input-password"
+                            [class.is-error]="password.invalid && password.touched" [formControl]="password"
+                            placeholder="At least 8 characters" name="new-password" autocomplete="new-password" />
+                        <button type="button" class="eye-btn" (click)="togglePassword()" aria-label="Toggle password visibility">
+                            <span class="material-symbols-outlined">
+                                {{ showPassword() ? 'visibility_off' : 'visibility' }}
+                            </span>
+                        </button>
+                    </div>
+                    @if (password.value) {
+                    <div class="strength-bar">
+                        <div class="strength-fill" [class]="'strength-fill strength-' + passwordStrength"></div>
+                    </div>
+                    <span class="strength-label" [class]="'strength-label-' + passwordStrength">
+                        {{ passwordStrength }} password
+                    </span>
+                    }
+                    @if (password.invalid && password.touched) {
+                    @if (password.errors?.['required']) {
+                    <span class="field-error">Password is required</span>
+                    } @else if (password.errors?.['minlength']) {
+                    <span class="field-error">At least 8 characters</span>
+                    }
+                    }
+                </div>
+
+                <div class="field">
+                    <label class="label" for="confirmPassword">Confirm password</label>
+                    <div class="input-wrap">
+                        <span class="input-icon material-symbols-outlined">lock</span>
+                        <input id="confirmPassword" [type]="showConfirmPassword() ? 'text' : 'password'"
+                            class="input input-password"
+                            [class.is-error]="(confirmPassword.touched && step2.errors?.['passwordMismatch'])"
+                            [formControl]="confirmPassword" placeholder="Repeat password" name="confirmPassword"
+                            autocomplete="new-password" />
+                        <button type="button" class="eye-btn" (click)="toggleConfirmPassword()"
+                            aria-label="Toggle confirm password visibility">
+                            <span class="material-symbols-outlined">
+                                {{ showConfirmPassword() ? 'visibility_off' : 'visibility' }}
+                            </span>
+                        </button>
+                    </div>
+                    @if (confirmPassword.touched && step2.errors?.['passwordMismatch']) {
+                    <span class="field-error">Passwords do not match</span>
+                    }
+                </div>
+
+                <div class="btn-row">
+                    <button type="button" class="btn btn-ghost btn-back" (click)="goToStep1()">
+                        <span class="material-symbols-outlined auth-arrow">arrow_back</span>
+                        Back
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-create" [disabled]="loading()">
+                        @if (loading()) {
+                        <span class="spinner"></span>
+                        Creating...
+                        } @else {
+                        Create workspace
+                        }
+                    </button>
+                </div>
+            </form>
+            }
+        </section>
+
+        <aside class="register-tips">
+            <h3>Registration Tips</h3>
+            <ul>
+                <li>Use a workspace URL your team can remember.</li>
+                <li>Use your real company email to simplify invites.</li>
+                <li>Choose a strong password with upper/lower letters, numbers, and symbols.</li>
+            </ul>
+        </aside>
+    </section>
+</main>

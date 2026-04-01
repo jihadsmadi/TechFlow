@@ -1,0 +1,58 @@
+.user-card {
+  width: min(380px, 92vw);
+  border: 1px solid #334155;
+  border-radius: 12px;
+  background: #0b1220;
+  color: #e2e8f0;
+  padding: 16px;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: #1d4ed8;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.meta h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.meta p {
+  margin: 4px 0 0;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.details {
+  margin: 14px 0 0;
+  display: grid;
+  gap: 8px;
+}
+
+.details div {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #1e293b;
+  padding-top: 8px;
+  font-size: 13px;
+}
+
+dt {
+  color: #94a3b8;
+}
+
+dd {
+  margin: 0;
+  color: #f8fafc;
+  font-weight: 500;
+}
+
+.empty {
+  color: #94a3b8;
+}

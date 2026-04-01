@@ -1,0 +1,107 @@
+<div class="mesh-bg">
+  <div class="blob blob-violet"></div>
+  <div class="blob blob-emerald"></div>
+  <div class="blob blob-pink"></div>
+</div>
+
+<div class="page">
+  <header class="topbar glass-card">
+    <span class="gradient-text logo">TechFlow</span>
+
+    <nav class="top-links">
+      <a class="link-chip" href="#features">Features</a>
+      <a class="link-chip" href="#security">Security</a>
+      <a class="link-chip" href="#about">About</a>
+    </nav>
+
+    @if (auth.isLoggedIn()) {
+    <div class="user-area">
+      <div class="avatar">
+        {{ auth.user()?.firstName?.charAt(0) }}{{ auth.user()?.lastName?.charAt(0) }}
+      </div>
+      <div class="user-meta">
+        <p class="user-name">{{ auth.fullName() }}</p>
+        <p class="user-role">{{ auth.role() }}</p>
+      </div>
+    </div>
+    } @else {
+    <div class="nav-buttons">
+      <a class="btn btn-ghost" routerLink="/login">Sign in</a>
+      <a class="btn btn-primary" routerLink="/register">Get started</a>
+    </div>
+    }
+  </header>
+
+  <main class="layout">
+    <section class="glass-card hero" id="about">
+      <span class="badge badge-primary">Built for engineering teams</span>
+      <h1 class="hero-title">Manage tasks, sprints, and delivery in one focused workspace</h1>
+      <p class="hero-sub">
+        TechFlow combines Kanban structure with sprint planning and collaboration so your team can move faster with less noise.
+      </p>
+
+      @if (auth.isLoggedIn()) {
+      <div class="hero-actions">
+        <button class="btn btn-primary btn-lg" (click)="router.navigate(['/app/projects'])">
+          Continue to dashboard
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+        <button class="btn btn-ghost btn-lg" (click)="logout()">Logout</button>
+      </div>
+      } @else {
+      <div class="hero-actions">
+        <a class="btn btn-primary btn-lg" routerLink="/register">
+          Create workspace
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </a>
+        <a class="btn btn-ghost btn-lg" routerLink="/login">Sign in</a>
+      </div>
+      }
+    </section>
+
+    <section class="glass-card info-panel" id="features">
+      <h2 class="panel-title">Platform Highlights</h2>
+      <div class="info-grid">
+        <article class="info-card">
+          <span class="material-symbols-outlined">view_kanban</span>
+          <h3>Kanban Boards</h3>
+          <p>Drag tasks across lists with clean status visibility for every project.</p>
+        </article>
+        <article class="info-card">
+          <span class="material-symbols-outlined">sprint</span>
+          <h3>Sprint Planning</h3>
+          <p>Track active cycles, goals, and completion without heavy setup.</p>
+        </article>
+        <article class="info-card">
+          <span class="material-symbols-outlined">group</span>
+          <h3>Role Access</h3>
+          <p>Assign teams with clear permissions for admins, managers, and developers.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="glass-card stats-panel" id="security">
+      <h2 class="panel-title">Why Teams Choose TechFlow</h2>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <strong>Multi-tenant</strong>
+          <span>Company data isolation by design</span>
+        </div>
+        <div class="stat-item">
+          <strong>JWT + Refresh</strong>
+          <span>Secure auth session lifecycle</span>
+        </div>
+        <div class="stat-item">
+          <strong>Real-time ready</strong>
+          <span>SignalR updates for shared boards</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer glass-card">
+    <span>TechFlow</span>
+    <span>Task management SaaS for modern product teams.</span>
+    <span>(c) 2026 TechFlow. All rights reserved.</span>
+  </footer>
+</div>

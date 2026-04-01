@@ -1,0 +1,27 @@
+<section class="glass-card page-card">
+  <header class="page-header">
+    <h2>Projects</h2>
+    <button type="button" class="btn btn-ghost btn-sm" (click)="load()">Refresh</button>
+  </header>
+
+  @if (loading()) {
+  <p class="hint">Loading projects...</p>
+  } @else if (error()) {
+  <p class="error-banner">{{ error() }}</p>
+  } @else if (!projects().length) {
+  <p class="hint">No projects yet. Create one from the backend or Postman first.</p>
+  } @else {
+  <div class="grid">
+    @for (project of projects(); track project.id) {
+    <article class="project-card">
+      <div class="card-top">
+        <h3>{{ project.name }}</h3>
+        <span class="badge badge-primary">{{ project.status || 'Active' }}</span>
+      </div>
+      <p>{{ project.description || 'No description provided.' }}</p>
+      <small>ID: {{ project.id }}</small>
+    </article>
+    }
+  </div>
+  }
+</section>

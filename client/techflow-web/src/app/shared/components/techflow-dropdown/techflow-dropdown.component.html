@@ -1,0 +1,22 @@
+<div class="dropdown-wrap">
+    <button type="button" class="dropdown-button" [id]="id" [disabled]="disabled" [class.is-open]="isOpen()"
+        (click)="toggleOpen()">
+        <span class="material-symbols-outlined dropdown-icon">{{ icon }}</span>
+        <span class="dropdown-value" [class.is-placeholder]="!value">{{ selectedLabel }}</span>
+        <span class="material-symbols-outlined dropdown-chevron">expand_more</span>
+    </button>
+
+    @if (isOpen()) {
+    <div class="dropdown-list" role="listbox">
+        @for (option of options; track trackByValue($index, option)) {
+        <button type="button" class="dropdown-item" role="option" [class.is-active]="value === option.value"
+            (click)="selectOption(option.value)">
+            <span>{{ option.label }}</span>
+            @if (value === option.value) {
+            <span class="material-symbols-outlined dropdown-check">check</span>
+            }
+        </button>
+        }
+    </div>
+    }
+</div>

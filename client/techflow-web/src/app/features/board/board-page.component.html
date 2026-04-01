@@ -1,0 +1,44 @@
+<section class="glass-card page-card">
+  <header class="page-header">
+    <h2>Board</h2>
+    <select class="select" [value]="selectedProjectId()" (change)="onProjectChange($event)">
+      @for (project of projects(); track project.id) {
+      <option [value]="project.id">{{ project.name }}</option>
+      }
+    </select>
+  </header>
+
+  @if (loading()) {
+  <p class="hint">Loading board...</p>
+  } @else if (error()) {
+  <p class="error-banner">{{ error() }}</p>
+  } @else if (!selectedProjectId()) {
+  <p class="hint">Create a project first to view the board.</p>
+  } @else {
+  <p class="board-name">{{ boardName() || 'Board' }}</p>
+
+  <div class="lists-row">
+    @for (list of lists(); track list.id) {
+    <article class="list-card">
+      <header>
+        <h3>{{ list.name }}</h3>
+        <span class="badge badge-primary">{{ list.tasks?.length || 0 }}</span>
+      </header>
+
+      <div class="tasks">
+        @if (!(list.tasks?.length)) {
+        <p class="hint small">No tasks</p>
+        } @else {
+          @for (task of (list.tasks ?? []); track task.id) {
+          <div class="task-item">
+            <p>{{ task.title }}</p>
+            <small>{{ task.priority || 'Priority N/A' }}</small>
+          </div>
+          }
+        }
+      </div>
+    </article>
+    }
+  </div>
+  }
+</section>

@@ -1,0 +1,31 @@
+<section class="glass-card page-card">
+  <header class="page-header">
+    <h2>My Tasks</h2>
+    <label class="check">
+      <input type="checkbox" [checked]="includeCompleted()" (change)="toggleIncludeCompleted($event)" />
+      Include completed
+    </label>
+  </header>
+
+  @if (loading()) {
+  <p class="hint">Loading tasks...</p>
+  } @else if (error()) {
+  <p class="error-banner">{{ error() }}</p>
+  } @else if (!tasks().length) {
+  <p class="hint">No tasks assigned yet.</p>
+  } @else {
+  <div class="task-list">
+    @for (task of tasks(); track task.id) {
+    <article class="task-item">
+      <div>
+        <p class="title">{{ task.title }}</p>
+        <small>
+          {{ task.projectName || task.projectId || 'Unknown project' }}
+        </small>
+      </div>
+      <span class="badge badge-primary">{{ task.priority || 'N/A' }}</span>
+    </article>
+    }
+  </div>
+  }
+</section>

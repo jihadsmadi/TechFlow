@@ -1,0 +1,41 @@
+<section class="glass-card page-card">
+  <header class="page-header">
+    <h2>Team & Invitations</h2>
+    <select class="select" [value]="selectedProjectId()" (change)="onProjectChange($event)">
+      @for (project of projects(); track project.id) {
+      <option [value]="project.id">{{ project.name }}</option>
+      }
+    </select>
+  </header>
+
+  @if (loading()) {
+  <p class="hint">Loading members...</p>
+  } @else if (error()) {
+  <p class="error-banner">{{ error() }}</p>
+  } @else if (!selectedProjectId()) {
+  <p class="hint">Create a project first to manage team members.</p>
+  } @else {
+  <article class="panel">
+    <h3>Project Members</h3>
+    @if (!members().length) {
+    <p class="hint">No members returned for this project.</p>
+    } @else {
+    <div class="list">
+      @for (member of members(); track member.userId || member.id || member.email || $index) {
+      <div class="item">
+        <p>{{ memberDisplay(member) }}</p>
+        <small>{{ member.role || 'Role N/A' }}</small>
+      </div>
+      }
+    </div>
+    }
+  </article>
+
+  <article class="panel pending">
+    <h3>Pending Backend for Invitations</h3>
+    <p>
+      Invitation flow is phase 7 and still needs endpoints for invite/accept/deactivate/list users.
+    </p>
+  </article>
+  }
+</section>

@@ -1,0 +1,27 @@
+<div class="user-card" *ngIf="currentUser() as u; else noUser">
+  <div class="avatar">{{ initials() }}</div>
+
+  <div class="meta">
+    <h3>{{ u.fullName }}</h3>
+    <p>{{ u.email }}</p>
+  </div>
+
+  <dl class="details">
+    <div>
+      <dt>Role</dt>
+      <dd>{{ u.role }}</dd>
+    </div>
+    <div>
+      <dt>Status</dt>
+      <dd>{{ u.isActive ? 'Active' : 'Inactive' }}</dd>
+    </div>
+    <div>
+      <dt>Company</dt>
+      <dd>{{ u.companyId }}</dd>
+    </div>
+  </dl>
+</div>
+
+<ng-template #noUser>
+  <div class="user-card empty">No user is loaded.</div>
+</ng-template>

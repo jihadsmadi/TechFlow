@@ -1,0 +1,52 @@
+<section class="glass-card page-card">
+  <header class="page-header">
+    <h2>Sprints</h2>
+    <select class="select" [value]="selectedProjectId()" (change)="onProjectChange($event)">
+      @for (project of projects(); track project.id) {
+      <option [value]="project.id">{{ project.name }}</option>
+      }
+    </select>
+  </header>
+
+  @if (loading()) {
+  <p class="hint">Loading sprint data...</p>
+  } @else if (error()) {
+  <p class="error-banner">{{ error() }}</p>
+  } @else if (!selectedProjectId()) {
+  <p class="hint">Create a project first to view sprints.</p>
+  } @else {
+  <div class="panel-grid">
+    <article class="panel">
+      <h3>Active Sprint</h3>
+      @if (!activeSprint()) {
+      <p class="hint">No active sprint.</p>
+      } @else {
+      <p class="strong">{{ activeSprint()?.displayName || activeSprint()?.name || 'Active Sprint' }}</p>
+      <p class="hint">Status: {{ activeSprint()?.status || 'Unknown' }}</p>
+      }
+    </article>
+
+    <article class="panel">
+      <h3>Backlog</h3>
+      <p class="strong">{{ backlog().length }} tasks</p>
+    </article>
+  </div>
+
+  <article class="panel list-panel">
+    <h3>All Sprints</h3>
+
+    @if (!sprints().length) {
+    <p class="hint">No sprints yet.</p>
+    } @else {
+    <div class="sprint-list">
+      @for (sprint of sprints(); track sprint.id) {
+      <div class="sprint-item">
+        <p>{{ sprint.displayName || sprint.name || ('Sprint ' + (sprint.sprintNumber ?? '')) }}</p>
+        <span class="badge badge-primary">{{ sprint.status || 'Unknown' }}</span>
+      </div>
+      }
+    </div>
+    }
+  </article>
+  }
+</section>

@@ -7,7 +7,7 @@ namespace TechFlow.Application.Common.Interfaces.Repositories;
 /// </summary>
 public interface IRoleRepository : IRepository<Role>
 {
-    Task<Role?> GetByNameAsync(string name, CancellationToken ct = default);
+    Task<Role?> GetByNameWithPermessionsAsync(string name, CancellationToken ct = default);
     Task<Role?> GetWithPermissionsAsync(Guid roleId, CancellationToken ct = default);
     Task<IReadOnlyList<Role>> GetAllWithPermissionsAsync(CancellationToken ct = default);
     Task<bool> ExistsByNameAsync(string name, CancellationToken ct = default);

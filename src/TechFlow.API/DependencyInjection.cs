@@ -15,6 +15,18 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        // ── CORS
+        services.AddCors(options =>
+        {
+            options.AddPolicy("Angular", policy =>
+                policy
+                    .WithOrigins(
+                        "http://localhost:4200")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials());
+        });
+
         // ── Controllers 
         services.AddControllers();
 

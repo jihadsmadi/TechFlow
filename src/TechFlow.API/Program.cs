@@ -34,7 +34,10 @@ if (app.Environment.IsDevelopment())
     await initialiser.SeedAsync();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+    app.UseHttpsRedirection(); 
+
+app.UseCors("Angular");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

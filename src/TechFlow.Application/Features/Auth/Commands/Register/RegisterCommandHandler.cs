@@ -1,4 +1,6 @@
 using MediatR;
+using System.ComponentModel.DataAnnotations;
+using TechFlow.Application.Common.Errors;
 using TechFlow.Application.Common.Interfaces.Repositories;
 using TechFlow.Application.Common.Interfaces.Services;
 using TechFlow.Application.Features.Auth.Dtos;
@@ -22,11 +24,9 @@ public sealed class RegisterCommandHandler(
     {
         if (await authService.EmailExistsAsync(command.Email, ct))
             return UserErrors.EmailAlreadyExists;
-
-        if (await unitOfWork.Users.ExistsByEmailAsync(command.Email, ct))
-            return UserErrors.EmailAlreadyExists;
-
-        if (await unitOfWork.Companies.ExistsBySlugAsync(command.CompanySlug, ct))
+        if (await unitOfWork.Companies.ExistsByContactEmailAsync(command.CompanyEmail, ct))
+            return CompanyErrors.ContactEmailAlreadyExists;
+        if (await unitOfWork.Companies.ExistsBySlugAsync(command.CompanySlug,ct))
             return CompanyErrors.SlugAlreadyExists;
 
         var companyResult = Company.Create(
@@ -59,7 +59,7 @@ public sealed class RegisterCommandHandler(
         var user = userResult.Value;
         unitOfWork.Users.Add(user);
 
-        var adminRole = await unitOfWork.Roles.GetByNameAsync(SystemRoles.Admin, ct);
+        var adminRole = await unitOfWork.Roles.GetByNameWithPermessionsAsync(SystemRoles.Admin, ct);
         if (adminRole is null)
             return Error.Failure("Role.AdminNotFound",
                 "Admin role not found. Ensure seed data is applied.");

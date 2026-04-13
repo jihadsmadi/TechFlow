@@ -46,7 +46,6 @@ public sealed class AddTaskToSprintCommandHandler(
         if (result.IsFailure)
             return result.TopError;
 
-        // mark the new SprintItem as Added — same EF fix as AddList/AddSubtask
         unitOfWork.Sprints.MarkSprintItemAsAdded(result.Value);
 
         await unitOfWork.SaveChangesAsync(ct);

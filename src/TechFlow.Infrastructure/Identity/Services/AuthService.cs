@@ -2,10 +2,8 @@
 using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 using TechFlow.Application.Common.Errors;
-using TechFlow.Application.Common.Interfaces;
 using TechFlow.Application.Common.Interfaces.Services;
 using TechFlow.Domain.Common.Results;
-using TechFlow.Domain.Users;
 using TechFlow.Infrastructure.Settings;
 
 namespace TechFlow.Infrastructure.Identity.Services;

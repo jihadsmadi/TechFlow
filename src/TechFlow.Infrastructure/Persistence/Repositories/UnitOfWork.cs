@@ -11,7 +11,8 @@ public sealed class UnitOfWork(ApplicationDbContext context) : IUnitOfWork
     private IProjectRepository?    _projects;
     private IBoardRepository?      _boards;
     private ITaskRepository?       _tasks;
-
+    private ISprintRepository?     _sprints;
+    private IInvitationRepository?   _invitations;
     // ── Properties 
 
     public IPermissionRepository Permissions =>
@@ -28,12 +29,12 @@ public sealed class UnitOfWork(ApplicationDbContext context) : IUnitOfWork
         _projects ??= new ProjectRepository(context);
     public IBoardRepository Boards =>
         _boards ??= new BoardRepository(context);
-
     public ITaskRepository Tasks => 
         _tasks ??= new TaskRepository(context);
-
-    public ISprintRepository Sprints =>
-        new SprintRepository(context);
+   public ISprintRepository Sprints =>
+        _sprints ??= new SprintRepository(context);
+   public IInvitationRepository Invitations =>
+        _invitations ??= new InvitationRepository(context);
     // ── Persistence 
 
     public async Task<int> SaveChangesAsync(CancellationToken ct = default)

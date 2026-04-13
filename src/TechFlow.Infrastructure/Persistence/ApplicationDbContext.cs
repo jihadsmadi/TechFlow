@@ -6,6 +6,7 @@ using TechFlow.Application.Common.Events;
 using TechFlow.Domain.Boards;
 using TechFlow.Domain.Common;
 using TechFlow.Domain.Companies;
+using TechFlow.Domain.Invitations;
 using TechFlow.Domain.Permissions;
 using TechFlow.Domain.Projects;
 using TechFlow.Domain.Roles;
@@ -48,6 +49,7 @@ public sealed class ApplicationDbContext(
 
     public DbSet<Sprint> Sprints => Set<Sprint>();
     public DbSet<SprintItem> SprintItems => Set<SprintItem>();
+    public DbSet<Invitation> Invitations => Set<Invitation>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

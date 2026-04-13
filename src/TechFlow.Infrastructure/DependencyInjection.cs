@@ -3,14 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using TechFlow.Application.Common.Interfaces;
 using TechFlow.Application.Common.Interfaces.Repositories;
 using TechFlow.Application.Common.Interfaces.Services;
-using TechFlow.Application.Common.Services;
 using TechFlow.Infrastructure.Identity;
 using TechFlow.Infrastructure.Identity.Services;
 using TechFlow.Infrastructure.Persistence;
 using TechFlow.Infrastructure.Persistence.Interceptors;
+using TechFlow.Infrastructure.Services;
 using TechFlow.Infrastructure.Settings;
 
 namespace TechFlow.Infrastructure;
@@ -28,6 +27,10 @@ public static class DependencyInjection
         // ── JWT Settings 
         services.Configure<JwtSettings>(
             configuration.GetSection(JwtSettings.SectionName));
+
+        // ── Client Settings
+        services.Configure<ClientSettings>(
+            configuration.GetSection(ClientSettings.SectionName));
 
         // ── Interceptors 
         services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
@@ -62,6 +65,8 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITokenService, TokenService>();
 
+        services.AddScoped<IEmailService, ConsoleEmailService>();
+        services.AddScoped<IInvitationLinkBuilder, InvitationLinkBuilder>();
         // ── Seeder 
         services.AddScoped<ApplicationDbContextInitialiser>();
 

@@ -4,7 +4,7 @@ namespace TechFlow.Domain.Common.Constants;
 public static class TechFlowConstants
 {
     public const string AppName = "TechFlow";
-    public const string DatabaseConnection = "DefaultConnection";
+    public const string DefaultInviterName = "A TechFlow team member";
 
     public static class Roles
     {

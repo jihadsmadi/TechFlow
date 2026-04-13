@@ -14,6 +14,6 @@ public interface IUnitOfWork
     IBoardRepository Boards { get; }
     ITaskRepository Tasks { get; }
     ISprintRepository Sprints { get; }
-        
+    IInvitationRepository Invitations { get; }
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

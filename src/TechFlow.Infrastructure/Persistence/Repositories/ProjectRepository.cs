@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TechFlow.Application.Common.Interfaces.Repositories;
 using TechFlow.Application.Common.Models;
+using TechFlow.Application.Features.Projects.Dtos;
 using TechFlow.Domain.Companies;
 using TechFlow.Domain.Projects;
 using TechFlow.Infrastructure.Persistence;
@@ -22,7 +23,26 @@ public class ProjectRepository(ApplicationDbContext context)
     {
         return await Context.Projects.Include(p => p.Members).FirstOrDefaultAsync(p => p.Id == id, ct);
     }
+    // ProjectRepository.cs
+    public async Task<List<ProjectMemberWithUserDto>> GetMembersWithUserDetailsAsync(Guid projectId, CancellationToken ct)
+    {
+        var query = from member in Context.ProjectMembers
+                    join user in Context.Users on member.UserId equals user.Id
+                    where member.ProjectId == projectId
+                    select new ProjectMemberWithUserDto(
+                        member.Id,
+                        member.ProjectId,
+                        member.UserId,
+                        user.FirstName,
+                        user.LastName,
+                        user.Email,
+                        user.AvatarUrl,
+                        member.AddedByUserId,
+                        member.AddedAt
+                    );
 
+        return await query.ToListAsync(ct);
+    }
     public async Task<List<Project>> GetByMemberAsync(Guid userId, CancellationToken ct = default)
     {
         return await Context.Projects.Where(p => p.Members.Any(m => m.UserId == userId)).ToListAsync(ct);

@@ -14,9 +14,9 @@ public sealed class GetProjectMembersQueryHandler(
     IUnitOfWork unitOfWork,
     IUser currentUser,
     ProjectAccessService accessService)
-    : IRequestHandler<GetProjectMembersQuery, Result<List<ProjectMemberDto>>>
+    : IRequestHandler<GetProjectMembersQuery, Result<List<ProjectMemberWithUserDto>>>
 {
-    public async Task<Result<List<ProjectMemberDto>>> Handle(
+    public async Task<Result<List<ProjectMemberWithUserDto>>> Handle(
         GetProjectMembersQuery query,
         CancellationToken ct)
     {
@@ -31,14 +31,9 @@ public sealed class GetProjectMembersQueryHandler(
 
         if (!accessService.CanAccess(project, currentUser.Id.Value, isAdmin))
             return ProjectErrors.AccessDenied;
-
-        return project.Members
-            .Select(m => new ProjectMemberDto(
-                Id:            m.Id,
-                UserId:        m.UserId,
-                ProjectId:     m.ProjectId,
-                AddedByUserId: m.AddedByUserId,
-                AddedAt:       m.AddedAt))
-            .ToList();
+ 
+        var members = await unitOfWork.Projects.GetMembersWithUserDetailsAsync(query.ProjectId, ct);
+        
+        return members;
     }
 }

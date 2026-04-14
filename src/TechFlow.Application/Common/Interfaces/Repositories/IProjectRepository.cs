@@ -1,3 +1,4 @@
+using TechFlow.Application.Features.Projects.Dtos;
 using TechFlow.Domain.Companies;
 using TechFlow.Domain.Projects;
 
@@ -11,7 +12,7 @@ public interface IProjectRepository : IRepository<Project>
         Guid? userId,
         bool includeArchived,
         CancellationToken ct = default);
-
+    Task<List<ProjectMemberWithUserDto>> GetMembersWithUserDetailsAsync(Guid projectId, CancellationToken ct);
     Task<List<Project>> GetByMemberAsync(Guid userId, CancellationToken ct = default);
     Task<bool> NameExistsInCompanyAsync(Guid companyId, string name, Guid? excludeId = null, CancellationToken ct = default);
     Task<bool> IsMemberAsync(Guid projectId, Guid userId, CancellationToken ct = default);

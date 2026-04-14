@@ -24,11 +24,9 @@ public sealed class InvitationConfiguration : IEntityTypeConfiguration<Invitatio
 
         builder.Property(i => i.Type)
             .IsRequired()
-            .HasConversion<string>()  // store as "Company" / "Project"
+            .HasConversion<string>()  
             .HasMaxLength(20);
 
-        // TokenHash — SHA-256 hex string = 64 chars
-        // indexed for fast lookup on accept
         builder.Property(i => i.TokenHash)
             .IsRequired()
             .HasMaxLength(64);
@@ -39,14 +37,10 @@ public sealed class InvitationConfiguration : IEntityTypeConfiguration<Invitatio
         builder.Property(i => i.IsRevoked).IsRequired();
 
         // ── Indexes
-        // Primary lookup — accept by token hash
         builder.HasIndex(i => i.TokenHash).IsUnique();
 
-        // Find pending invites for a company — used in GetPendingInvitations
         builder.HasIndex(i => new { i.CompanyId, i.IsUsed, i.IsRevoked });
 
-        // Find pending invite for a specific email in a company
-        // Used in duplicate check before creating new invite
         builder.HasIndex(i => new { i.CompanyId, i.Email, i.IsUsed, i.IsRevoked });
     }
 }

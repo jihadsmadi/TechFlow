@@ -59,10 +59,7 @@ public sealed class AcceptInvitationCommandHandler(
             unitOfWork.Users.Add(domainUser);
         }
 
-        var companyRole = UserCompanyRole.Create(
-            domainUser.Id,
-            invitation.CompanyId,
-            invitation.RoleId);
+        var companyRole = UserCompanyRole.Create(domainUser.Id, invitation.RoleId, invitation.InvitedByUserId);
 
         if (companyRole.IsFailure)
             return companyRole.TopError;

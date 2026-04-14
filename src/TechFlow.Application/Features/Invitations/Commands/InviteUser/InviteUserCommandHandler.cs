@@ -14,7 +14,6 @@ using TechFlow.Domain.Roles;
 
 namespace TechFlow.Application.Features.Invitaions.Commands.InviteUser;
 
-// ── Handler
 
 public sealed class InviteUserCommandHandler(
     IUnitOfWork unitOfWork,
@@ -61,8 +60,7 @@ public sealed class InviteUserCommandHandler(
         if (existingUser is not null)
             return InvitationErrors.UserAlreadyMember;
 
-        if(existingUser!.CompanyId == companyId)
-            return InvitationErrors.NotFound;
+       
 
         // create invitation
         var createResult = Invitation.Create(

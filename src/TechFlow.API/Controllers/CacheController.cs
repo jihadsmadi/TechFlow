@@ -1,7 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using TechFlow.API.Authorization;
 using TechFlow.API.Extensions;
 using TechFlow.Application.Features.Services.ClearingCache.Commands;
+using TechFlow.Domain.Permissions.Const;
 
 namespace TechFlow.API.Controllers
 {
@@ -12,6 +14,7 @@ namespace TechFlow.API.Controllers
         private readonly ISender _sender = sender;
 
         [HttpPost("clear")]
+        [HasPermission(PermissionNames.CompanyManageFlags)]
         public async Task<IActionResult> ClearCache([FromQuery]string ?cacheKey,CancellationToken ct)
         {
             var result = await _sender.Send(new ClearCacheCommand(cacheKey), ct);

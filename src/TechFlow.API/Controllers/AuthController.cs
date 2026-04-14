@@ -12,15 +12,13 @@ namespace TechFlow.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[AllowAnonymous]
 public sealed class AuthController(ISender sender) : ControllerBase
 {
     private readonly ISender _sender = sender;
 
-    [HttpGet("test")]
-    public async Task<IActionResult> Test() => Ok($"Auth Controller Work");
     // POST api/auth/register
     [HttpPost("register")]
+    [AllowAnonymous]
     public async Task<IActionResult> Register(
         [FromBody] RegisterCommand command,
         CancellationToken ct)
@@ -31,6 +29,7 @@ public sealed class AuthController(ISender sender) : ControllerBase
 
     // POST api/auth/login
     [HttpPost("login")]
+    [AllowAnonymous]
     public async Task<IActionResult> Login(
         [FromBody] LoginCommand command,
         CancellationToken ct)
@@ -41,6 +40,7 @@ public sealed class AuthController(ISender sender) : ControllerBase
 
     // POST api/auth/refresh
     [HttpPost("refresh")]
+    [AllowAnonymous]
     public async Task<IActionResult> Refresh(
         [FromBody] RefreshRequest request,
         CancellationToken ct)

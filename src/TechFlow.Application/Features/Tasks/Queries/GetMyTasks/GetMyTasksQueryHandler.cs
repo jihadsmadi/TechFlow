@@ -3,6 +3,7 @@ using TechFlow.Application.Common.Errors;
 using TechFlow.Application.Common.Interfaces;
 using TechFlow.Application.Common.Interfaces.Repositories;
 using TechFlow.Application.Features.Tasks.Dtos;
+using TechFlow.Application.Features.Tasks.Mappers;
 using TechFlow.Domain.Common.Results;
 
 namespace TechFlow.Application.Features.Tasks.Queries.GetMyTasks;
@@ -25,20 +26,6 @@ public sealed class GetMyTasksQueryHandler(
             includeCompleted: query.IncludeCompleted,
             ct: ct);
 
-        return tasks
-            .Select(t => new MyTaskDto(
-                Id: t.Id,
-                ProjectId: t.ProjectId,
-                ListId: t.ListId,
-                Title: t.Title,
-                Priority: t.Priority,
-                Type: t.Type,
-                DisplayOrder: t.DisplayOrder,
-                DueDate: t.DueDate,
-                IsCompleted: t.IsCompleted,
-                SubtasksTotal: t.Subtasks.Count,
-                SubtasksCompleted: t.Subtasks.Count(s => s.IsCompleted)))
-            .ToList()
-            .AsReadOnly();
+        return tasks.ToMyTaskDtos();
     }
 }

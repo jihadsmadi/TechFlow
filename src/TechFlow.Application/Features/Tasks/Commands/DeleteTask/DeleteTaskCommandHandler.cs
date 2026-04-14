@@ -32,6 +32,8 @@ public sealed class DeleteTaskCommandHandler(
         var task = await unitOfWork.Tasks.GetByIdAsync(command.TaskId, ct);
         if (task is null)
             return TaskErrors.NotFound;
+        if (task.ProjectId != command.ProjectId)
+            return TaskErrors.NotFound;
 
         unitOfWork.Tasks.Remove(task);
         await unitOfWork.SaveChangesAsync(ct);

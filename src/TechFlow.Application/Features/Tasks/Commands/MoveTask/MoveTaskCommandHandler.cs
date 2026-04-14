@@ -33,6 +33,9 @@ public sealed class MoveTaskCommandHandler(
         if (task is null)
             return TaskErrors.NotFound;
 
+        if (task.ProjectId != command.ProjectId) 
+            return TaskErrors.NotFound;
+
         var isListInProject = await unitOfWork.Boards.ListBelongsToProjectAsync(command.NewListId, command.ProjectId, ct);
         if (!isListInProject)
             return TaskErrors.ListNotBelongToProject;

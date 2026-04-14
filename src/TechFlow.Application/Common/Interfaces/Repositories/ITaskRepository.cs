@@ -14,5 +14,6 @@ public interface ITaskRepository : IRepository<Task>
     Task<List<Task>> GetByIdsAsync(IEnumerable<Guid> taskIds, CancellationToken ct = default);
     Task<List<Task>> GetBacklogTasksAsync(Guid projectId, CancellationToken ct = default);
     Task<Dictionary<Guid, (int Total, int Completed)>> GetCountsBySprintIdsAsync(IEnumerable<Guid> sprintIds, CancellationToken ct = default);
+    Task<Task?> GetByIdWithDetailsAsync(Guid taskId, CancellationToken ct);
     void MarkSubtaskAsAdded(Subtask subtask);
 }

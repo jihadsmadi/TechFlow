@@ -4,6 +4,7 @@ using TechFlow.Application.Common.Interfaces;
 using TechFlow.Application.Common.Interfaces.Repositories;
 using TechFlow.Application.Common.Services;
 using TechFlow.Application.Features.Tasks.Dtos;
+using TechFlow.Application.Features.Tasks.Mappers;
 using TechFlow.Domain.Common.Results;
 using TechFlow.Domain.Projects;
 using TechFlow.Domain.Roles;
@@ -35,36 +36,10 @@ public sealed class GetTaskByIdQueryHandler(
         var task = await unitOfWork.Tasks.GetByIdWithSubtasksAsync(query.TaskId, ct);
         if (task is null)
             return TaskErrors.NotFound;
-
+        if (task.ProjectId != query.ProjectId)
+            return TaskErrors.NotFound;
         var (completed, total) = task.GetSubtaskProgress();
 
-        return new TaskDto(
-            Id: task.Id,
-            ListId: task.ListId,
-            ProjectId: task.ProjectId,
-            CompanyId: task.CompanyId,
-            CreatedByUserId: task.CreatedByUserId,
-            Title: task.Title,
-            Description: task.Description,
-            Priority: task.Priority,
-            Type: task.Type,
-            DisplayOrder: task.DisplayOrder,
-            DueDate: task.DueDate,
-            EstimatedMinutes: task.EstimatedMinutes,
-            ActualMinutes: task.ActualMinutes,
-            IsCompleted: task.IsCompleted,
-            CompletedAt: task.CompletedAt,
-            Subtasks: task.Subtasks
-                .Select(s => new SubtaskDto(
-                    Id: s.Id,
-                    TaskId: s.TaskId,
-                    Title: s.Title,
-                    IsCompleted: s.IsCompleted,
-                    CreatedAt: s.CreatedAt))
-                .ToList(),
-            SubtasksTotal: total,
-            SubtasksCompleted: completed,
-            CreatedAt: task.CreatedAtUtc,
-            UpdatedAt: task.LastModifiedUtc);
+        return task.ToDto();
     }
 }

@@ -102,7 +102,13 @@ public sealed class TaskRepository(ApplicationDbContext context) : Repository<Do
 
         return max ?? 0;
     }
-
+    public async Task<Domain.Tasks.Task?> GetByIdWithDetailsAsync(Guid taskId, CancellationToken ct)
+    {
+        return await context.Tasks
+            .Include(t => t.Subtasks)
+            .Include(t => t.Assignments)
+            .FirstOrDefaultAsync(t => t.Id == taskId, ct);
+    }
     public void MarkSubtaskAsAdded(Domain.Tasks.Subtasks.Subtask subtask)
         => context.Entry(subtask).State = Microsoft.EntityFrameworkCore.EntityState.Added;
 }

@@ -29,8 +29,13 @@ public sealed class UpdateTaskCommandHandler(
         if (!accessService.CanAccess(project, currentUser.Id.Value, isAdmin))
             return ProjectErrors.AccessDenied;
 
+        if (project.Settings.RequireEstimate && !command.EstimatedMinutes.HasValue)
+            return TaskErrors.EstimateRequired;
+
         var task = await unitOfWork.Tasks.GetByIdAsync(command.TaskId, ct);
         if (task is null)
+            return TaskErrors.NotFound;
+        if (task.ProjectId != command.ProjectId)
             return TaskErrors.NotFound;
 
         var result = task.Update(

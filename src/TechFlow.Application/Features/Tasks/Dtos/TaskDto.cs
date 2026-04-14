@@ -17,6 +17,7 @@ public sealed record TaskDto(
     bool IsCompleted,
     DateTimeOffset? CompletedAt,
     IReadOnlyList<SubtaskDto> Subtasks,
+    IReadOnlyList<TaskAssignmentDto> Assignments,
     int SubtasksTotal,
     int SubtasksCompleted,
     DateTimeOffset CreatedAt,
@@ -32,8 +33,18 @@ public sealed record TaskSummaryDto(
     DateTimeOffset? DueDate,
     bool IsCompleted,
     int SubtasksTotal,
-    int SubtasksCompleted);
+    int SubtasksCompleted,
+    IReadOnlyList<Guid> AssignedUserIds);
 
+public sealed record TaskAssignmentDto(
+    Guid Id,
+    Guid TaskId,
+    Guid UserId,
+    string UserName,        
+    string UserEmail,       
+    string? UserAvatarUrl,  
+    Guid AssignedByUserId,
+    DateTimeOffset AssignedAt);
 public sealed record SubtaskDto(
     Guid Id,
     Guid TaskId,
@@ -51,4 +62,5 @@ public sealed record MyTaskDto(
     DateTimeOffset? DueDate,
     bool IsCompleted,
     int SubtasksTotal,
-    int SubtasksCompleted);
+    int SubtasksCompleted,
+    IReadOnlyList<Guid> AssignedUserIds);

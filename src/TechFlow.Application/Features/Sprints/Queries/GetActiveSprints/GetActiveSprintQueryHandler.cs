@@ -7,6 +7,7 @@ using TechFlow.Application.Features.Sprints.Dtos;
 using TechFlow.Application.Features.Sprints.Mappers;
 using TechFlow.Application.Features.Sprints.Queries.GetSprintById;
 using TechFlow.Application.Features.Tasks.Dtos;
+using TechFlow.Application.Features.Tasks.Mappers;
 using TechFlow.Domain.Common.Results;
 using TechFlow.Domain.Projects;
 using TechFlow.Domain.Roles;
@@ -40,18 +41,7 @@ public sealed class GetActiveSprintQueryHandler(
         var taskIds = sprint.Items.Select(i => i.TaskId).ToList();
         var tasks = await unitOfWork.Tasks.GetByIdsAsync(taskIds, ct);
 
-        var taskDtos = tasks
-            .Select(t => new TaskSummaryDto(
-                Id: t.Id,
-                ListId: t.ListId,
-                Title: t.Title,
-                Priority: t.Priority,
-                Type: t.Type,
-                DisplayOrder: t.DisplayOrder,
-                DueDate: t.DueDate,
-                IsCompleted: t.IsCompleted,
-                SubtasksTotal: t.Subtasks.Count,
-                SubtasksCompleted: t.Subtasks.Count(s => s.IsCompleted))).ToList();
+        var taskDtos = tasks.Select(t => t.ToSummaryDto()).ToList();
 
         return sprint.ToDto(taskDtos);
     }

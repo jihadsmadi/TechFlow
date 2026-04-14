@@ -32,6 +32,8 @@ public sealed class CancelSprintCommandHandler(
         var sprint = await unitOfWork.Sprints.GetByIdAsync(command.SprintId, ct);
         if (sprint is null)
             return SprintErrors.NotFound;
+        if (sprint.ProjectId != command.ProjectId)
+            return SprintErrors.NotFound;
 
         var result = sprint.Cancel();
         if (result.IsFailure)

@@ -38,6 +38,8 @@ public sealed class StartSprintCommandHandler(
         if (sprint is null)
             return SprintErrors.NotFound;
 
+        if (sprint.ProjectId != command.ProjectId)
+            return SprintErrors.NotFound;
         // pass SprintLockOnStart from project settings
         var result = sprint.Start(project.Settings.SprintLockOnStart);
         if (result.IsFailure)

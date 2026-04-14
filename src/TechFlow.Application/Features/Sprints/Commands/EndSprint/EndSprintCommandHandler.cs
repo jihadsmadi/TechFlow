@@ -33,6 +33,8 @@ public sealed class EndSprintCommandHandler(
         if (sprint is null)
             return SprintErrors.NotFound;
 
+        if (sprint.ProjectId != command.ProjectId)
+            return SprintErrors.NotFound;
         // End() fires SprintEndedEvent — SprintEndedEventHandler handles incomplete tasks
         var result = sprint.End(command.IncompleteTasksAction);
         if (result.IsFailure)

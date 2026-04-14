@@ -4,6 +4,7 @@ using TechFlow.Application.Common.Interfaces;
 using TechFlow.Application.Common.Interfaces.Repositories;
 using TechFlow.Application.Common.Services;
 using TechFlow.Application.Features.Tasks.Dtos;
+using TechFlow.Application.Features.Tasks.Mappers;
 using TechFlow.Domain.Common.Results;
 using TechFlow.Domain.Projects;
 using TechFlow.Domain.Roles;
@@ -34,19 +35,6 @@ public sealed class GetBacklogQueryHandler(
         // backlog = tasks in this project that are NOT in any active or planned sprint
         var tasks = await unitOfWork.Tasks.GetBacklogTasksAsync(query.ProjectId, ct);
 
-        return tasks
-            .Select(t => new TaskSummaryDto(
-                Id: t.Id,
-                ListId: t.ListId,
-                Title: t.Title,
-                Priority: t.Priority,
-                Type: t.Type,
-                DisplayOrder: t.DisplayOrder,
-                DueDate: t.DueDate,
-                IsCompleted: t.IsCompleted,
-                SubtasksTotal: t.Subtasks.Count,
-                SubtasksCompleted: t.Subtasks.Count(s => s.IsCompleted)))
-            .ToList()
-            .AsReadOnly();
+        return tasks.ToSummaryDtos();
     }
 }

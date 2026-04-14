@@ -1,8 +1,5 @@
 ﻿namespace TechFlow.Application.Common.Interfaces.Services;
 
-// Application layer defines the contract
-// Infrastructure provides the implementation
-// This keeps Application free of any email library dependency
 public interface IEmailService
 {
     Task SendInvitationAsync(

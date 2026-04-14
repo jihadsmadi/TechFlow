@@ -12,7 +12,7 @@ using TechFlow.Domain.Permissions.Const;
 namespace TechFlow.API.Controllers;
 
 [ApiController]
-[Route("api/invitations")]
+[Route("api/[controller]")]
 public sealed class InvitationsController(ISender sender) : ControllerBase
 {
 

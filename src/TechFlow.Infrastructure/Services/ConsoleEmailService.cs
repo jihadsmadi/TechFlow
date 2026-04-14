@@ -3,9 +3,6 @@ using TechFlow.Application.Common.Interfaces.Services;
 
 namespace TechFlow.Infrastructure.Services;
 
-// Development simulation — logs the invitation link to the console
-// Replace with a real MailKit/SendGrid implementation for production
-// The link printed here is what you'd paste in the browser to test accept flow
 public sealed class ConsoleEmailService(ILogger<ConsoleEmailService> logger) : IEmailService
 {
     public Task SendInvitationAsync(
@@ -16,8 +13,7 @@ public sealed class ConsoleEmailService(ILogger<ConsoleEmailService> logger) : I
         DateTimeOffset expiresAt,
         CancellationToken ct = default)
     {
-        // In production this sends a real email
-        // In development paste the URL from the console into your browser
+
         logger.LogInformation(
             """
             ============================================================

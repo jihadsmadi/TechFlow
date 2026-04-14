@@ -4,6 +4,7 @@ using TechFlow.Application.Common.Interfaces;
 using TechFlow.Application.Common.Interfaces.Repositories;
 using TechFlow.Application.Common.Services;
 using TechFlow.Application.Features.Tasks.Dtos;
+using TechFlow.Application.Features.Tasks.Mappers;
 using TechFlow.Domain.Common.Results;
 using TechFlow.Domain.Projects;
 using TechFlow.Domain.Roles;
@@ -47,11 +48,6 @@ public sealed class AddSubtaskCommandHandler(
         await unitOfWork.SaveChangesAsync(ct);
 
         var subtask = result.Value;
-        return new SubtaskDto(
-            Id: subtask.Id,
-            TaskId: subtask.TaskId,
-            Title: subtask.Title,
-            IsCompleted: subtask.IsCompleted,
-            CreatedAt: subtask.CreatedAt);
+        return subtask.ToDto();
     }
 }

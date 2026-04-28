@@ -1,33 +1,87 @@
-<div class="mesh-bg">
-  <div class="blob blob-violet"></div>
-  <div class="blob blob-emerald"></div>
-  <div class="blob blob-pink"></div>
-</div>
+<div class="layout">
+  @if (mobileSidebarOpen()) {
+  <button
+    class="sidebar-backdrop"
+    type="button"
+    (click)="closeMobileSidebar()"
+    aria-label="Close navigation panel"></button>
+  }
 
-<div class="shell">
-  <aside class="sidebar glass-card">
-    <h1 class="brand gradient-text">TechFlow</h1>
-    <p class="role">{{ auth.fullName() }}  {{ auth.role() }}</p>
+  <aside class="sidebar" [class.open]="mobileSidebarOpen()">
+    <div class="brand-wrap">
+      <div class="brand-mark" aria-hidden="true">TF</div>
+      <div>
+        <h1>TechFlow</h1>
+        <p>Project Platform</p>
+      </div>
+      <button class="sidebar-close" type="button" (click)="closeMobileSidebar()" aria-label="Close menu">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
 
-    <nav class="nav">
-      @for (link of links; track link.path) {
-      <a [routerLink]="link.path" routerLinkActive="active" class="nav-link">
-        {{ link.label }}
+    <nav class="side-nav" aria-label="Primary">
+      @for (item of sidebarItems; track item.id) {
+      <a
+        class="side-item"
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.exact ?? true }"
+        (click)="onNavigate()">
+        <span class="material-symbols-outlined">{{ item.icon }}</span>
+        <span>{{ item.label }}</span>
       </a>
       }
     </nav>
+
+    <a class="create-btn" routerLink="/app/projects/new" (click)="onNavigate()">
+      <span class="material-symbols-outlined">add</span>
+      Create
+    </a>
+
+    <button class="logout-btn" type="button" (click)="auth.logout()">
+      <span class="material-symbols-outlined">logout</span>
+      Log out
+    </button>
   </aside>
 
-  <section class="content">
-    <header class="topbar glass-card">
-      <div>
-        <p class="title">Workspace</p>
-        <p class="subtitle">Next phase pages connected to your API</p>
+  <section class="main">
+    <header class="topbar">
+      <div class="top-left">
+        <button
+          class="mobile-menu-btn"
+          type="button"
+          (click)="toggleMobileSidebar()"
+          [attr.aria-expanded]="mobileSidebarOpen()"
+          aria-label="Open navigation menu">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+
+        <label class="search" aria-label="Search">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" placeholder="Search issues, boards, and projects" />
+        </label>
+
+        <nav class="tabs" aria-label="Workspace tabs">
+          @for (tab of topTabs; track tab) {
+          <button type="button" [class.active]="activeTab() === tab" (click)="setTopTab(tab)">{{ tab }}</button>
+          }
+        </nav>
       </div>
-      <button class="btn btn-ghost" type="button" (click)="auth.logout()">Logout</button>
+
+      <div class="top-right">
+        <button class="icon-btn" type="button" aria-label="Notifications">
+          <span class="material-symbols-outlined">notifications</span>
+        </button>
+        <button class="icon-btn" type="button" aria-label="History">
+          <span class="material-symbols-outlined">history</span>
+        </button>
+        <div class="avatar" [attr.title]="auth.fullName()">
+          {{ auth.user()?.firstName?.charAt(0) }}{{ auth.user()?.lastName?.charAt(0) }}
+        </div>
+      </div>
     </header>
 
-    <main class="main">
+    <main class="content">
       <router-outlet></router-outlet>
     </main>
   </section>

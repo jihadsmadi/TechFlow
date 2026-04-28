@@ -112,10 +112,11 @@ export class AuthService {
     if (!this.tokenService.hasValidRefreshToken()) return of(false);
 
     const refreshToken = this.tokenService.getRefreshToken();
-    if (!refreshToken) return of(false);
+    const accessToken = this.tokenService.getAccessToken();
+    if (!refreshToken || !accessToken) return of(false);
 
     this.refreshInFlight$ = this.rawHttp
-      .post<AuthResponse>(`${this.base}/auth/refresh`, { refreshToken })
+      .post<AuthResponse>(`${this.base}/auth/refresh`, { accessToken, refreshToken })
       .pipe(
         tap((res) => this.handleAuthResponse(res)),
         switchMap(() => this.getCurrentUser()),

@@ -41,4 +41,7 @@ public sealed record ProjectSettingsDto(
     string DefaultPriority,
     bool AutoAssignCreator,
     bool RequireEstimate,
-    bool AllowSubtasks);
+    bool AllowSubtasks,
+    bool SprintLockOnStart,
+    int SprintDurationDays,
+    string IncompleteTasksAction);

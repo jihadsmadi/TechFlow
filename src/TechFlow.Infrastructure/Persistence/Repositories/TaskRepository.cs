@@ -45,6 +45,7 @@ public sealed class TaskRepository(ApplicationDbContext context) : Repository<Do
         => await context.Tasks
             .AsNoTracking()
             .Include(t => t.Subtasks)
+            .Include(t => t.Assignments)
             .Where(t =>
                 t.CompanyId == companyId &&
                 (includeCompleted || !t.IsCompleted) &&
@@ -111,4 +112,6 @@ public sealed class TaskRepository(ApplicationDbContext context) : Repository<Do
     }
     public void MarkSubtaskAsAdded(Domain.Tasks.Subtasks.Subtask subtask)
         => context.Entry(subtask).State = Microsoft.EntityFrameworkCore.EntityState.Added;
+    public void MarkTaskAssignmentAsAdded(Domain.Tasks.TaskAssignments.TaskAssignment taskAssignment)
+        => context.Entry(taskAssignment).State = Microsoft.EntityFrameworkCore.EntityState.Added;
 }

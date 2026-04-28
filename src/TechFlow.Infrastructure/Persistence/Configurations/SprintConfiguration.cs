@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TechFlow.Domain.Sprints;
+using TechFlow.Domain.Sprints.ValueObjects;
 
 namespace TechFlow.Infrastructure.Persistence.Configurations;
 
@@ -38,8 +39,12 @@ public sealed class SprintConfiguration : IEntityTypeConfiguration<Sprint>
             .HasForeignKey(i => i.SprintId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // unique sprint number per project
-        builder.HasIndex(s => new { s.ProjectId, s.SprintNumber }).IsUnique();
+        
+        builder.HasIndex(s => new { s.ProjectId, s.Status })
+                  .HasFilter($"[Status] = '{SprintStatus.Active}'")
+                  .IsUnique()
+                  .HasDatabaseName("IX_Sprints_OneActivePerProject");
+
         builder.HasIndex(s => s.ProjectId);
         builder.HasIndex(s => s.CompanyId);
         builder.HasIndex(s => new { s.ProjectId, s.Status });

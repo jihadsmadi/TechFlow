@@ -9,30 +9,26 @@ using TechFlow.Domain.Roles;
 
 namespace TechFlow.Application.Features.Projects.Commands.UpdateProjectSettings;
 
-
 public sealed class UpdateProjectSettingsCommandHandler(
     IUnitOfWork unitOfWork,
     IUser currentUser,
     ProjectAccessService accessService)
     : IRequestHandler<UpdateProjectSettingsCommand, Result<Updated>>
 {
-    public async Task<Result<Updated>> Handle(
-        UpdateProjectSettingsCommand command,
-        CancellationToken ct)
+    public async Task<Result<Updated>> Handle(UpdateProjectSettingsCommand command, CancellationToken ct)
     {
         if (currentUser.Id is null)
             return ApplicationErrors.Unauthorized;
 
-        var project = await unitOfWork.Projects.GetByIdWithMembersAsync(command.ProjectId, ct);
+        var project = await unitOfWork.Projects.GetByIdAsync(command.ProjectId, ct);
         if (project is null)
             return ProjectErrors.NotFound;
 
         var isAdmin = currentUser.IsInRole(SystemRoles.Admin);
-
         if (!accessService.CanModify(project, currentUser.Id.Value, isAdmin))
             return ProjectErrors.AccessDenied;
 
-        var result = project.Settings.Update(
+        var updateResult = project.Settings.Update(
             command.DefaultListNames,
             command.DefaultTaskType,
             command.DefaultPriority,
@@ -40,10 +36,19 @@ public sealed class UpdateProjectSettingsCommandHandler(
             command.RequireEstimate,
             command.AllowSubtasks);
 
-        if (result.IsFailure)
-            return result.TopError;
+        if (updateResult.IsFailure)
+            return updateResult.TopError;
+
+        var sprintUpdateResult = project.Settings.UpdateSprintSettings(
+            command.SprintLockOnStart,
+            command.SprintDurationDays,
+            command.IncompleteTasksAction);
+
+        if (sprintUpdateResult.IsFailure)
+            return sprintUpdateResult.TopError;
 
         await unitOfWork.SaveChangesAsync(ct);
+
         return Result.Updated;
     }
 }

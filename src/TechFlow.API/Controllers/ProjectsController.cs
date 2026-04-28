@@ -62,6 +62,10 @@ public sealed class ProjectsController(ISender sender) : ControllerBase
         CancellationToken ct)
     {
         var result = await _sender.Send(command, ct);
+
+        if(result.IsFailure)
+            return result.ToActionResult(this);
+
         return result.ToCreatedResult(this, nameof(GetById),
             new { id = result.Value.Id });
     }
@@ -134,7 +138,7 @@ public sealed class ProjectsController(ISender sender) : ControllerBase
     {
         var result = await _sender.Send(
             new AddProjectMemberCommand(id, request.UserId), ct);
-        return result.ToActionResult(this);
+        return result.ToNoContentResult(this);
     }
 
     // DELETE api/projects/{id}/members/{userId}

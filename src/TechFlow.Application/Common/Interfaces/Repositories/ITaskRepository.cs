@@ -1,5 +1,5 @@
 ﻿using TechFlow.Domain.Tasks.Subtasks;
-
+using TechFlow.Domain.Tasks.TaskAssignments;
 using Task = TechFlow.Domain.Tasks.Task;
 namespace TechFlow.Application.Common.Interfaces.Repositories;
 
@@ -16,4 +16,5 @@ public interface ITaskRepository : IRepository<Task>
     Task<Dictionary<Guid, (int Total, int Completed)>> GetCountsBySprintIdsAsync(IEnumerable<Guid> sprintIds, CancellationToken ct = default);
     Task<Task?> GetByIdWithDetailsAsync(Guid taskId, CancellationToken ct);
     void MarkSubtaskAsAdded(Subtask subtask);
+    void MarkTaskAssignmentAsAdded(TaskAssignment subtask);
 }

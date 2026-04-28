@@ -2,6 +2,7 @@
 
 public static class TaskType
 {
+    public const string Task = "Task";
     public const string Bug = "Bug";
     public const string Feature = "Feature";
     public const string Research = "Research";
@@ -9,6 +10,7 @@ public static class TaskType
 
     public static readonly IReadOnlyList<string> All =
     [
+        Task,
         Bug,
         Feature,
         Research,

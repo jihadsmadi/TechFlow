@@ -96,6 +96,7 @@ public sealed class TasksController(ISender sender) : ControllerBase
         [FromBody] MoveTaskCommand command,
         CancellationToken ct)
     {
+
         var result = await sender.Send(command with { ProjectId = projectId, TaskId = taskId }, ct);
         return result.ToNoContentResult(this);
     }
@@ -149,6 +150,8 @@ public sealed class TasksController(ISender sender) : ControllerBase
         [FromBody] RenameSubtaskCommand command,
         CancellationToken ct)
     {
+       
+
         var result = await sender.Send(
             command with { ProjectId = projectId, TaskId = taskId, SubtaskId = subtaskId }, ct);
         return result.ToNoContentResult(this);

@@ -229,7 +229,7 @@ public sealed class Task : AuditableEntity
 
     // ── Business — Assignments
 
-    public Result<Updated> AssignUser(Guid userId, Guid assignedByUserId)
+    public Result<TaskAssignment> AssignUser(Guid userId, Guid assignedByUserId)
     {
         if (IsAssigned(userId))
             return TaskErrors.AlreadyAssigned;
@@ -242,7 +242,7 @@ public sealed class Task : AuditableEntity
 
         AddDomainEvent(new TaskAssignedEvent(Id, userId, ProjectId));
 
-        return Result.Updated;
+        return result;
     }
 
     public Result<Updated> UnassignUser(Guid userId)

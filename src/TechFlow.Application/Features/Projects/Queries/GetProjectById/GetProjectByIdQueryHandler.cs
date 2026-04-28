@@ -51,7 +51,11 @@ public sealed class GetProjectByIdQueryHandler(
                 DefaultPriority:  project.Settings.DefaultPriority,
                 AutoAssignCreator: project.Settings.AutoAssignCreator,
                 RequireEstimate:  project.Settings.RequireEstimate,
-                AllowSubtasks:    project.Settings.AllowSubtasks),
+                AllowSubtasks:    project.Settings.AllowSubtasks,
+                SprintLockOnStart: project.Settings.SprintLockOnStart,
+                SprintDurationDays: project.Settings.SprintDurationDays,
+                IncompleteTasksAction: project.Settings.IncompleteTasksAction
+                ),
             CreatedAt: project.CreatedAtUtc,
             UpdatedAt: project.LastModifiedUtc);
     }

@@ -41,6 +41,8 @@ public sealed class AssignTaskCommandHandler(
         if (result.IsFailure)
             return result.TopError;
 
+        unitOfWork.Tasks.MarkTaskAssignmentAsAdded(result.Value);
+
         await unitOfWork.SaveChangesAsync(ct);
         return Result.Updated;
     }

@@ -1,41 +1,128 @@
-<section class="glass-card page-card">
-  <header class="page-header">
-    <h2>Team & Invitations</h2>
-    <select class="select" [value]="selectedProjectId()" (change)="onProjectChange($event)">
-      @for (project of projects(); track project.id) {
-      <option [value]="project.id">{{ project.name }}</option>
-      }
-    </select>
+<section class="team-page glass-card">
+  <header class="page-top">
+    <div>
+      <p class="eyebrow">Collaboration</p>
+      <h2>Team</h2>
+      <p class="page-sub">Manage members, roles, and pending invitations.</p>
+    </div>
+
+    <div class="header-actions">
+      <select class="select" [value]="context.selectedProjectId()" (change)="onProjectChange($event)">
+        @for (project of context.projects(); track project.id) {
+        <option [value]="project.id">{{ project.name }}</option>
+        }
+      </select>
+      <button class="btn btn-ghost btn-sm" type="button" (click)="refresh()">Refresh</button>
+    </div>
   </header>
 
   @if (loading()) {
-  <p class="hint">Loading members...</p>
+  <p class="hint">Loading team data...</p>
   } @else if (error()) {
   <p class="error-banner">{{ error() }}</p>
-  } @else if (!selectedProjectId()) {
-  <p class="hint">Create a project first to manage team members.</p>
+  } @else if (!context.selectedProjectId()) {
+  <article class="empty-state">
+    <span class="material-symbols-outlined">group</span>
+    <p>Create a project first to manage members and invitations.</p>
+  </article>
   } @else {
-  <article class="panel">
-    <h3>Project Members</h3>
-    @if (!members().length) {
-    <p class="hint">No members returned for this project.</p>
+  <div class="team-grid">
+    <article class="panel">
+      <header class="panel-header">
+        <h3>Project Members</h3>
+        <span class="badge badge-primary">{{ members().length }}</span>
+      </header>
+
+      @if (!members().length) {
+      <p class="hint">No members returned for this project.</p>
+      } @else {
+      <div class="list">
+        @for (member of members(); track member.id) {
+        <div class="item">
+          <div>
+            <p>{{ memberDisplay(member) }}</p>
+            <small>{{ member.email }}</small>
+          </div>
+          <small>Added {{ member.addedAt | date: 'MMM d' }}</small>
+        </div>
+        }
+      </div>
+      }
+    </article>
+
+    <article class="panel">
+      <header class="panel-header">
+        <h3>Invite Member</h3>
+        <span class="badge badge-success">Live API</span>
+      </header>
+
+      @if (!roles().length) {
+      <p class="hint">No roles available or permission missing to load roles.</p>
+      } @else {
+      <form [formGroup]="inviteForm" (ngSubmit)="submitInvite()" class="invite-form" novalidate>
+        <label class="label" for="invite-email">Email</label>
+        <input
+          id="invite-email"
+          type="email"
+          class="input invite-input"
+          formControlName="email"
+          placeholder="person@company.com" />
+
+        <label class="label" for="invite-role">Role</label>
+        <select id="invite-role" class="select invite-input" formControlName="roleId">
+          @for (role of roles(); track role.id) {
+          <option [value]="role.id">{{ role.name }}</option>
+          }
+        </select>
+
+        <label class="check">
+          <input type="checkbox" formControlName="scopeToProject" />
+          Scope invite to selected project
+        </label>
+
+        @if (inviteError()) {
+        <p class="error-banner compact">{{ inviteError() }}</p>
+        }
+
+        <button class="btn btn-primary btn-sm" type="submit" [disabled]="inviteLoading()">
+          @if (inviteLoading()) {
+          Sending...
+          } @else {
+          Send invitation
+          }
+        </button>
+      </form>
+      }
+    </article>
+  </div>
+
+  <article class="panel invitations-panel">
+    <header class="panel-header">
+      <h3>Pending Invitations</h3>
+      <span class="badge badge-primary">{{ invitations().length }}</span>
+    </header>
+
+    @if (!invitations().length) {
+    <p class="hint">No pending invitations.</p>
     } @else {
     <div class="list">
-      @for (member of members(); track member.userId || member.id || member.email || $index) {
-      <div class="item">
-        <p>{{ memberDisplay(member) }}</p>
-        <small>{{ member.role || 'Role N/A' }}</small>
+      @for (invitation of invitations(); track invitation.id) {
+      <div class="item invite-item">
+        <div>
+          <p>{{ invitation.email }}</p>
+          <small>
+            {{ invitationTypeLabel(invitation.type) }} invite
+            @if (invitation.projectId) {
+            • Project scoped
+            }
+            • Expires {{ invitation.expiresAt | date: 'MMM d, y' }}
+          </small>
+        </div>
+        <button class="btn btn-ghost btn-sm" type="button" (click)="revokeInvitation(invitation.id)">Revoke</button>
       </div>
       }
     </div>
     }
-  </article>
-
-  <article class="panel pending">
-    <h3>Pending Backend for Invitations</h3>
-    <p>
-      Invitation flow is phase 7 and still needs endpoints for invite/accept/deactivate/list users.
-    </p>
   </article>
   }
 </section>

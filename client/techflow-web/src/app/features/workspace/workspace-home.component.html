@@ -1,0 +1,83 @@
+<section class="workspace-page">
+  @if (showOnboarding()) {
+  <section class="onboarding-banner" role="status" aria-live="polite">
+    <div>
+      <p class="onboarding-eyebrow">First Story</p>
+      <h2>Workspace created successfully</h2>
+      <p>Your next step is to create a project and invite teammates to begin sprint planning.</p>
+      <div class="onboarding-actions">
+        <a routerLink="/app/projects" class="action-btn action-primary">Create Project</a>
+        <a routerLink="/app/team" class="action-btn action-secondary">Invite Team</a>
+      </div>
+    </div>
+    <button type="button" class="onboarding-close" (click)="dismissOnboarding()" aria-label="Dismiss onboarding">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </section>
+  }
+
+  @if (error()) {
+  <p class="error-banner">{{ error() }}</p>
+  }
+
+  <header class="workspace-head">
+    <div>
+      <p class="eyebrow">Main Layout</p>
+      <h1>Team Dashboard</h1>
+      <p class="subtitle">Execution overview powered by projects, tasks, and sprint endpoints.</p>
+    </div>
+
+    <div class="head-actions">
+      <button class="btn btn-ghost btn-sm" type="button" (click)="loadOverview()">Refresh Overview</button>
+      <a routerLink="/app/board" class="action-btn action-secondary">Open Board</a>
+      <a routerLink="/app/projects" class="action-btn action-primary">Open Projects</a>
+    </div>
+  </header>
+
+  @if (loading()) {
+  <p class="hint">Loading workspace overview...</p>
+  } @else {
+  <div class="status-grid">
+    @for (card of statusCards(); track card.label) {
+    <article class="status-card">
+      <p>{{ card.label }}</p>
+      <strong>{{ card.value }}</strong>
+      <span>{{ card.trend }}</span>
+    </article>
+    }
+  </div>
+
+  <div class="canvas-grid">
+    <article class="canvas-panel">
+      <header>
+        <h2>Selected Project</h2>
+        <span class="pill">Focus</span>
+      </header>
+      <p class="strong-line">{{ selectedProjectName() }}</p>
+      <p>Backlog: {{ selectedProjectBacklog() }} tasks</p>
+    </article>
+
+    <article class="canvas-panel">
+      <header>
+        <h2>Active Sprint</h2>
+        <span class="pill">Sprint</span>
+      </header>
+      <p class="strong-line">{{ selectedProjectActiveSprint() }}</p>
+      <p>Use Sprint page for timeline and backlog details.</p>
+    </article>
+
+    <article class="canvas-panel full-width">
+      <header>
+        <h2>Quick Actions</h2>
+        <span class="pill">Next</span>
+      </header>
+      <div class="quick-actions">
+        <a routerLink="/app/projects" class="action-btn action-secondary">Create / View Projects</a>
+        <a routerLink="/app/board" class="action-btn action-secondary">Review Board</a>
+        <a routerLink="/app/sprints" class="action-btn action-secondary">Plan Sprint</a>
+        <a routerLink="/app/team" class="action-btn action-secondary">Manage Team</a>
+      </div>
+    </article>
+  </div>
+  }
+</section>

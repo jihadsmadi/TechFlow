@@ -1,52 +1,95 @@
-<section class="glass-card page-card">
-  <header class="page-header">
-    <h2>Sprints</h2>
-    <select class="select" [value]="selectedProjectId()" (change)="onProjectChange($event)">
-      @for (project of projects(); track project.id) {
-      <option [value]="project.id">{{ project.name }}</option>
-      }
-    </select>
+<section class="sprints-page glass-card">
+  <header class="page-top">
+    <div>
+      <p class="eyebrow">Planning</p>
+      <h2>Sprints</h2>
+      <p class="page-sub">Track active sprint execution and backlog readiness.</p>
+    </div>
+
+    <div class="header-actions">
+      <select class="select" [value]="context.selectedProjectId()" (change)="onProjectChange($event)">
+        @for (project of context.projects(); track project.id) {
+        <option [value]="project.id">{{ project.name }}</option>
+        }
+      </select>
+      <button class="btn btn-ghost btn-sm" type="button" (click)="refresh()">Refresh</button>
+    </div>
   </header>
 
   @if (loading()) {
   <p class="hint">Loading sprint data...</p>
   } @else if (error()) {
   <p class="error-banner">{{ error() }}</p>
-  } @else if (!selectedProjectId()) {
-  <p class="hint">Create a project first to view sprints.</p>
+  } @else if (!context.selectedProjectId()) {
+  <article class="empty-state">
+    <span class="material-symbols-outlined">sprint</span>
+    <p>Create a project first to start planning sprints.</p>
+  </article>
   } @else {
-  <div class="panel-grid">
-    <article class="panel">
+  <div class="stats-grid">
+    <article class="stat-card">
       <h3>Active Sprint</h3>
       @if (!activeSprint()) {
       <p class="hint">No active sprint.</p>
       } @else {
-      <p class="strong">{{ activeSprint()?.displayName || activeSprint()?.name || 'Active Sprint' }}</p>
-      <p class="hint">Status: {{ activeSprint()?.status || 'Unknown' }}</p>
+      <p class="strong">{{ activeSprint()?.displayName }}</p>
+      <p class="hint">{{ activeSprint()?.completedTasks }} / {{ activeSprint()?.totalTasks }} tasks completed</p>
+      <div class="progress-track" aria-label="Active sprint progress">
+        <span class="progress-value" [style.width.%]="activeSprintProgress()"></span>
+      </div>
+      }
+    </article>
+
+    <article class="stat-card">
+      <h3>Backlog</h3>
+      <p class="strong">{{ backlog().length }}</p>
+      <p class="hint">Tasks not currently in active or planned sprint</p>
+    </article>
+
+    <article class="stat-card">
+      <h3>Total Sprints</h3>
+      <p class="strong">{{ sprints().length }}</p>
+      <p class="hint">Historical and planned sprint cycles</p>
+    </article>
+  </div>
+
+  <div class="panels-grid">
+    <article class="panel">
+      <h3>Sprint Timeline</h3>
+
+      @if (!sprints().length) {
+      <p class="hint">No sprints created yet.</p>
+      } @else {
+      <div class="sprint-list">
+        @for (sprint of sprints(); track sprint.id) {
+        <div class="sprint-item">
+          <div>
+            <p>{{ sprint.displayName }}</p>
+            <small>{{ sprint.startDate | date: 'MMM d' }} - {{ sprint.endDate | date: 'MMM d' }}</small>
+          </div>
+          <span class="badge badge-primary">{{ sprint.status }}</span>
+        </div>
+        }
+      </div>
       }
     </article>
 
     <article class="panel">
-      <h3>Backlog</h3>
-      <p class="strong">{{ backlog().length }} tasks</p>
-    </article>
-  </div>
+      <h3>Backlog Preview</h3>
 
-  <article class="panel list-panel">
-    <h3>All Sprints</h3>
-
-    @if (!sprints().length) {
-    <p class="hint">No sprints yet.</p>
-    } @else {
-    <div class="sprint-list">
-      @for (sprint of sprints(); track sprint.id) {
-      <div class="sprint-item">
-        <p>{{ sprint.displayName || sprint.name || ('Sprint ' + (sprint.sprintNumber ?? '')) }}</p>
-        <span class="badge badge-primary">{{ sprint.status || 'Unknown' }}</span>
+      @if (!backlog().length) {
+      <p class="hint">Backlog is empty.</p>
+      } @else {
+      <div class="task-list">
+        @for (task of backlog().slice(0, 8); track task.id) {
+        <div class="task-item">
+          <p>{{ task.title }}</p>
+          <small>{{ task.priority }} • {{ task.type }}</small>
+        </div>
+        }
       </div>
       }
-    </div>
-    }
-  </article>
+    </article>
+  </div>
   }
 </section>

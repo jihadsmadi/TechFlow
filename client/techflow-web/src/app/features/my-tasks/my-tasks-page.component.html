@@ -1,31 +1,80 @@
-<section class="glass-card page-card">
-  <header class="page-header">
-    <h2>My Tasks</h2>
-    <label class="check">
-      <input type="checkbox" [checked]="includeCompleted()" (change)="toggleIncludeCompleted($event)" />
-      Include completed
-    </label>
+<section class="tasks-page glass-card">
+  <header class="page-top">
+    <div>
+      <p class="eyebrow">Assigned</p>
+      <h2>My Tasks</h2>
+      <p class="page-sub">Your tasks across projects with project and list context.</p>
+    </div>
+
+    <div class="top-controls">
+      <select class="filter-select" [value]="statusFilter()" (change)="updateStatusFilter(($any($event.target)).value)">
+        <option value="all">All statuses</option>
+        <option value="open">Open only</option>
+        <option value="completed">Completed only</option>
+      </select>
+      <select
+        class="filter-select"
+        [value]="priorityFilter()"
+        (change)="updatePriorityFilter(($any($event.target)).value)"
+      >
+        <option value="all">All priorities</option>
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+        <option value="critical">Critical</option>
+      </select>
+      <select class="filter-select" [value]="dueFilter()" (change)="updateDueFilter(($any($event.target)).value)">
+        <option value="all">Any due date</option>
+        <option value="overdue">Overdue</option>
+        <option value="today">Due today</option>
+        <option value="thisWeek">Due this week</option>
+        <option value="noDueDate">No due date</option>
+      </select>
+      <button class="btn btn-ghost btn-sm" type="button" (click)="load()">Refresh</button>
+    </div>
   </header>
 
   @if (loading()) {
   <p class="hint">Loading tasks...</p>
   } @else if (error()) {
   <p class="error-banner">{{ error() }}</p>
-  } @else if (!tasks().length) {
-  <p class="hint">No tasks assigned yet.</p>
+  } @else if (!filteredTasks().length) {
+  <article class="empty-state">
+    <span class="material-symbols-outlined">check_circle</span>
+    <p>No tasks match your current filters.</p>
+  </article>
   } @else {
-  <div class="task-list">
-    @for (task of tasks(); track task.id) {
-    <article class="task-item">
-      <div>
-        <p class="title">{{ task.title }}</p>
-        <small>
-          {{ task.projectName || task.projectId || 'Unknown project' }}
-        </small>
-      </div>
-      <span class="badge badge-primary">{{ task.priority || 'N/A' }}</span>
-    </article>
-    }
+  <div class="meta-row">
+    <span class="badge badge-primary">{{ filteredTasks().length }} total</span>
+    <span class="badge badge-success">{{ openTaskCount() }} open</span>
   </div>
+
+  @for (group of groupedTasks(); track group.projectName) {
+  <article class="group-panel">
+    <header>
+      <h3>{{ group.projectName }}</h3>
+      <span class="badge badge-primary">{{ group.tasks.length }}</span>
+    </header>
+
+    <div class="task-list">
+      @for (task of group.tasks; track task.id) {
+      <article class="task-item" [class.done]="task.isCompleted">
+        <div class="task-meta">
+          <p class="title">{{ task.title }}</p>
+          <small>
+            {{ task.listName || 'Unknown list' }} � {{ task.priority }} � {{ task.type }}
+            @if (task.dueDate) {
+            � Due {{ task.dueDate | date: 'MMM d' }}
+            }
+          </small>
+        </div>
+        <span class="badge" [class.badge-success]="task.isCompleted" [class.badge-warning]="!task.isCompleted">
+          {{ task.isCompleted ? 'Done' : 'Open' }}
+        </span>
+      </article>
+      }
+    </div>
+  </article>
+  }
   }
 </section>

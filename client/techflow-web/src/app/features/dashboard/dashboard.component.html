@@ -1,0 +1,59 @@
+<div class="dashboard-shell">
+  <header class="dashboard-header">
+    <div>
+      <p class="eyebrow">Overview</p>
+      <h1>Delivery Overview</h1>
+      <p class="subheading">Welcome back, {{ auth.fullName() }}. Live summary from task and project endpoints.</p>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-ghost btn-sm" type="button" (click)="load()">Refresh</button>
+      <button class="icon-btn" type="button" (click)="toggleProfileTab()" aria-label="View profile">
+        <span class="material-symbols-outlined">person</span>
+      </button>
+      <button class="logout-btn" type="button" (click)="auth.logout()">Logout</button>
+    </div>
+  </header>
+
+  @if (error()) {
+  <p class="error-banner">{{ error() }}</p>
+  }
+
+  @if (loading()) {
+  <p class="hint">Loading dashboard metrics...</p>
+  } @else {
+  <section class="kpi-grid">
+    @for (kpi of kpis(); track kpi.label) {
+    <article class="kpi-card">
+      <p>{{ kpi.label }}</p>
+      <strong>{{ kpi.value }}</strong>
+      <span>{{ kpi.note }}</span>
+    </article>
+    }
+  </section>
+
+  <section class="panels-grid">
+    <article class="panel">
+      <header>
+        <h2>Execution Focus</h2>
+        <span class="pill">Now</span>
+      </header>
+      <p>Prioritize open items, then clear in-progress tasks to keep cycle time tight.</p>
+    </article>
+
+    <article class="panel">
+      <header>
+        <h2>Team Health</h2>
+        <span class="pill">Signals</span>
+      </header>
+      <p>Use team and sprint pages to review assignments, invites, and backlog balance.</p>
+    </article>
+  </section>
+  }
+
+  @if (showProfile()) {
+  <section class="profile-tab">
+    <app-current-user-card></app-current-user-card>
+  </section>
+  }
+</div>

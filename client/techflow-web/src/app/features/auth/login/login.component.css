@@ -1,26 +1,26 @@
 :host {
-    --auth-bg: #f8f9ff;
-    --auth-surface: #ffffff;
-    --auth-border: #d7e0f0;
-    --auth-text: #0d1c2e;
-    --auth-muted: #5f6474;
-    --auth-primary: #3525cd;
-    --auth-primary-strong: #4f46e5;
-    --auth-shadow: 0 26px 48px -16px rgba(13, 28, 46, 0.22);
-    --auth-focus: 0 0 0 3px rgba(79, 70, 229, 0.18);
+    --auth-bg: var(--color-bg);
+    --auth-surface: var(--color-bg-surface);
+    --auth-border: var(--color-border-subtle);
+    --auth-text: var(--color-text);
+    --auth-muted: var(--color-text-muted);
+    --auth-primary: var(--color-primary);
+    --auth-primary-strong: var(--color-primary-hover);
+    --auth-shadow: var(--shadow-soft);
+    --auth-focus: 0 0 0 3px rgba(55, 93, 243, 0.18);
     display: block;
 }
 
 :host-context([data-theme='dark']) {
-    --auth-bg: #05070c;
-    --auth-surface: #101a2b;
-    --auth-border: #324666;
-    --auth-text: #f2f6ff;
-    --auth-muted: #a8b6cd;
-    --auth-primary: #8a80ff;
+    --auth-bg: var(--color-bg);
+    --auth-surface: var(--color-bg-surface);
+    --auth-border: var(--color-border-subtle);
+    --auth-text: var(--color-text);
+    --auth-muted: var(--color-text-muted);
+    --auth-primary: var(--color-primary);
     --auth-primary-strong: #5e8eff;
-    --auth-shadow: 0 24px 44px -14px rgba(0, 0, 0, 0.7);
-    --auth-focus: 0 0 0 3px rgba(138, 128, 255, 0.22);
+    --auth-shadow: var(--shadow-soft);
+    --auth-focus: 0 0 0 3px rgba(94, 142, 255, 0.22);
 }
 
 .auth-header {
@@ -33,7 +33,7 @@
     gap: 12px;
     padding: 20px 24px;
     color: var(--auth-text);
-    background: color-mix(in srgb, var(--auth-bg) 96%, #ffffff);
+    background: var(--auth-bg);
 }
 
 .brand-mark {
@@ -209,7 +209,7 @@
 }
 
 .input {
-    background: color-mix(in srgb, var(--auth-surface) 84%, #ffffff);
+    background: var(--auth-surface);
     border-color: color-mix(in srgb, var(--auth-border) 70%, transparent);
     color: var(--auth-text);
 }

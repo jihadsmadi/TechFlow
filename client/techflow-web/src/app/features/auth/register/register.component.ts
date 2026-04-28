@@ -1,8 +1,16 @@
-import { Component, inject, signal, OnDestroy } from '@angular/core';
-import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { Component, inject, OnDestroy, signal } from '@angular/core';
+import {
+  ReactiveFormsModule,
+  FormGroup,
+  FormControl,
+  Validators,
+  AbstractControl,
+  ValidationErrors,
+} from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ToastService } from '../../../core/notifications/toast.service';
 import { RegisterRequest } from '../../../shared/models/auth.model';
 import { TechflowDropdownComponent, TechflowDropdownOption } from '../../../shared/components/techflow-dropdown/techflow-dropdown.component';
 
@@ -17,13 +25,12 @@ const passwordMatchValidator = (group: AbstractControl): ValidationErrors | null
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink, TechflowDropdownComponent],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.css'
+  styleUrl: './register.component.css',
 })
 export class RegisterComponent implements OnDestroy {
-  private auth = inject(AuthService);
-  private router = inject(Router);
-  private readonly toastDurationMs = 3000;
-  private readonly toastExitMs = 220;
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   step = signal<1 | 2>(1);
 
@@ -34,39 +41,60 @@ export class RegisterComponent implements OnDestroy {
     companyEmail: new FormControl('', [Validators.required, Validators.email]),
   });
 
-  step2 = new FormGroup({
-    firstName: new FormControl('', [Validators.required]),
-    lastName: new FormControl('', [Validators.required]),
-    email: new FormControl('', [Validators.required, Validators.email]),
-    password: new FormControl('', [Validators.required, Validators.minLength(8)]),
-    confirmPassword: new FormControl('', [Validators.required]),
-  }, { validators: passwordMatchValidator });
+  step2 = new FormGroup(
+    {
+      firstName: new FormControl('', [Validators.required]),
+      lastName: new FormControl('', [Validators.required]),
+      email: new FormControl('', [Validators.required, Validators.email]),
+      password: new FormControl('', [Validators.required, Validators.minLength(8)]),
+      confirmPassword: new FormControl('', [Validators.required]),
+    },
+    { validators: passwordMatchValidator },
+  );
 
-  showPassword = signal(false);
-  showConfirmPassword = signal(false);
-  toast = signal<string | null>(null);
-  toastLeaving = signal(false);
-  private toastTimer?: ReturnType<typeof setTimeout>;
-  private toastExitTimer?: ReturnType<typeof setTimeout>;
+  readonly showPassword = signal(false);
+  readonly showConfirmPassword = signal(false);
   readonly industryOptions: TechflowDropdownOption[] = [
     { value: 'Technology', label: 'Technology & Software' },
     { value: 'Design', label: 'Creative & Design' },
     { value: 'Marketing', label: 'Marketing & Sales' },
     { value: 'Finance', label: 'Finance & Fintech' },
-    { value: 'Other', label: 'Other' }
+    { value: 'Other', label: 'Other' },
   ];
 
-  get companyName() { return this.step1.controls.companyName; }
-  get companySlug() { return this.step1.controls.companySlug; }
-  get industry() { return this.step1.controls.industry; }
-  get companyEmail() { return this.step1.controls.companyEmail; }
-  get firstName() { return this.step2.controls.firstName; }
-  get lastName() { return this.step2.controls.lastName; }
-  get email() { return this.step2.controls.email; }
-  get password() { return this.step2.controls.password; }
-  get confirmPassword() { return this.step2.controls.confirmPassword; }
-  get loading() { return this.auth.loading; }
-  get apiError() { return this.auth.error; }
+  get companyName() {
+    return this.step1.controls.companyName;
+  }
+  get companySlug() {
+    return this.step1.controls.companySlug;
+  }
+  get industry() {
+    return this.step1.controls.industry;
+  }
+  get companyEmail() {
+    return this.step1.controls.companyEmail;
+  }
+  get firstName() {
+    return this.step2.controls.firstName;
+  }
+  get lastName() {
+    return this.step2.controls.lastName;
+  }
+  get email() {
+    return this.step2.controls.email;
+  }
+  get password() {
+    return this.step2.controls.password;
+  }
+  get confirmPassword() {
+    return this.step2.controls.confirmPassword;
+  }
+  get loading() {
+    return this.auth.loading;
+  }
+  get apiError() {
+    return this.auth.error;
+  }
 
   get passwordStrength(): 'very-weak' | 'weak' | 'good' | 'strong' | null {
     const v = this.password.value ?? '';
@@ -91,7 +119,9 @@ export class RegisterComponent implements OnDestroy {
 
   onCompanyNameInput(event: Event): void {
     const val = (event.target as HTMLInputElement).value;
-    const slug = val.toLowerCase().trim()
+    const slug = val
+      .toLowerCase()
+      .trim()
       .replace(/\s+/g, '-')
       .replace(/[^a-z0-9-]/g, '')
       .replace(/-+/g, '-');
@@ -137,40 +167,27 @@ export class RegisterComponent implements OnDestroy {
 
     this.auth.register(req).subscribe({
       next: () => {
-        this.showToast('Workspace created!');
-        setTimeout(() => this.router.navigate(['/app/projects']), 1200);
+        this.toast.success('Workspace created!');
+        setTimeout(() => this.router.navigate(['/app'], { queryParams: { onboarding: '1' } }), 600);
       },
-      error: (err) => {
-        console.error('Registration error:', err);
-      }
+      complete: () => {
+        const err = this.auth.error();
+        if (err) {
+          this.toast.error(err);
+        }
+      },
     });
   }
 
-  togglePassword(): void { this.showPassword.update(v => !v); }
-  toggleConfirmPassword(): void { this.showConfirmPassword.update(v => !v); }
-
-  private showToast(msg: string): void {
-    clearTimeout(this.toastExitTimer);
-    this.toastLeaving.set(false);
-    this.toast.set(msg);
-    clearTimeout(this.toastTimer);
-    this.toastTimer = setTimeout(() => this.dismissToast(), this.toastDurationMs);
+  togglePassword(): void {
+    this.showPassword.update((v) => !v);
   }
 
-  dismissToast(): void {
-    if (!this.toast()) return;
-    clearTimeout(this.toastTimer);
-    clearTimeout(this.toastExitTimer);
-    this.toastLeaving.set(true);
-    this.toastExitTimer = setTimeout(() => {
-      this.toast.set(null);
-      this.toastLeaving.set(false);
-    }, this.toastExitMs);
+  toggleConfirmPassword(): void {
+    this.showConfirmPassword.update((v) => !v);
   }
 
   ngOnDestroy(): void {
-    clearTimeout(this.toastTimer);
-    clearTimeout(this.toastExitTimer);
     this.auth.clearError();
   }
 }

@@ -4,23 +4,6 @@
     <div class="blob blob-pink"></div>
 </div>
 
-@if (toast()) {
-<div class="toast-container toast-top-right">
-    <div class="toast toast-success" [class.is-leaving]="toastLeaving()" role="status" aria-live="polite">
-        <div class="toast-icon toast-icon-success">
-            <span class="material-symbols-outlined">check_circle</span>
-        </div>
-        <div class="toast-content">
-            <p class="toast-title">Success</p>
-            <p class="toast-message">{{ toast() }}</p>
-        </div>
-        <button type="button" class="toast-close" (click)="dismissToast()" aria-label="Close notification">
-            <span class="material-symbols-outlined">close</span>
-        </button>
-    </div>
-</div>
-}
-
 <header class="auth-header">
     <div class="brand-mark" aria-hidden="true">
         <span class="material-symbols-outlined">blur_on</span>

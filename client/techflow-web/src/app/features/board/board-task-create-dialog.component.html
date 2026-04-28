@@ -1,0 +1,41 @@
+<dialog #dialogEl class="tf-dialog" (close)="onDialogClose()">
+  <div class="tf-dialog__panel">
+    <header class="tf-dialog__head">
+      <h2>New task</h2>
+      <button type="button" class="tf-dialog__icon" (click)="close()" aria-label="Close">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </header>
+    <form class="tf-dialog__form" (submit)="$event.preventDefault(); submit()">
+      <div>
+        <label class="tf-dialog__label" for="btc-title">Title</label>
+        <input id="btc-title" class="tf-dialog__input" name="title" [(ngModel)]="title" maxlength="120" required />
+      </div>
+
+      <div class="tf-dialog__row">
+        <div class="tf-dialog__field">
+          <div class="tf-field-with-color">
+            <app-techflow-dropdown id="btc-priority" icon="flag" placeholder="Priority" name="priority"
+              [options]="priorityOptions" [(ngModel)]="priority" />
+            <span class="color-dot" [style.backgroundColor]="getPriorityMeta(priority).color"
+              title="Priority color"></span>
+          </div>
+        </div>
+        <div class="tf-dialog__field">
+          <div class="tf-field-with-color">
+            <app-techflow-dropdown id="btc-type" icon="category" placeholder="Type" name="type" [options]="typeOptions"
+              [(ngModel)]="type" />
+            <span class="color-dot" [style.backgroundColor]="getTypeMeta(type).color" title="Type color"></span>
+          </div>
+        </div>
+      </div>
+
+      <app-techflow-date-input name="btcDue" [(ngModel)]="dueDate" inputId="btc-due" label="Due date (optional)" />
+    </form>
+    <footer class="tf-dialog__actions">
+      <button type="button" class="btn btn-ghost btn-sm" (click)="close()">Cancel</button>
+      <button type="submit" class="btn btn-primary btn-sm" [disabled]="!title.trim()" (click)="submit()">Create
+        task</button>
+    </footer>
+  </div>
+</dialog>

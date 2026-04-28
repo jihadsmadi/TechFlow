@@ -1,0 +1,248 @@
+<app-board-task-create-dialog #createDlg (submitted)="onTaskCreateSubmit($event)" />
+<app-board-add-list-dialog #addListDlg (submitted)="onAddListSubmit($event)" />
+
+<section class="board-page glass-card">
+  <header class="board-header">
+    <div>
+      <p class="eyebrow">Kanban</p>
+      <h2>{{ boardName() || 'Project Board' }}</h2>
+      <p class="page-sub">Plan and move work across lists without losing context.</p>
+    </div>
+
+    <div class="header-actions">
+      @if (projectPickerOptions().length) {
+      <div class="board-project-picker">
+        <app-techflow-dropdown id="board-project" icon="folder" placeholder="Select project" name="boardProject"
+          [options]="projectPickerOptions()" [ngModel]="context.selectedProjectId()"
+          (ngModelChange)="onProjectPicked($event ?? '')" />
+      </div>
+      }
+      <button class="btn btn-primary btn-sm" type="button" [disabled]="!context.selectedProjectId()"
+        (click)="startAddList()">
+        + Add list
+      </button>
+      <button class="btn btn-ghost btn-sm" type="button" (click)="refresh()">Refresh</button>
+    </div>
+  </header>
+
+  @if (loading()) {
+  <div class="board-loading" role="status" aria-live="polite">
+    <app-techflow-spinner size="md" label="Loading board" />
+    <p class="hint">Loading board…</p>
+  </div>
+  } @else if (error()) {
+  <p class="error-banner">{{ error() }}</p>
+  } @else if (!context.selectedProjectId()) {
+  <article class="empty-state">
+    <span class="material-symbols-outlined">view_kanban</span>
+    <p>Create your first project to start using the board.</p>
+  </article>
+  } @else {
+  <div class="board-meta">
+    <span class="badge badge-primary">{{ lists().length }} lists</span>
+    <span class="badge badge-success">{{ totalTasks() }} tasks</span>
+    <span class="project-chip">{{ context.selectedProject()?.name }}</span>
+  </div>
+
+  <div class="lists-wrap">
+    @if (silentRefreshing()) {
+    <div class="lists-quiet-overlay" aria-hidden="true">
+      <app-techflow-spinner size="md" label="Updating board" />
+    </div>
+    }
+    <div class="lists-row" role="list">
+      @for (list of lists(); track trackByListId($index, list)) {
+      <article class="list-card" [class.list-card--active]="isActiveList(list.id)" role="listitem"
+        [class.drop-target]="dropListId() === list.id" (dragover)="allowTaskDrop($event, list.id)"
+        (dragleave)="dropListId.set(null)" (drop)="onTaskDrop($event, list)">
+        <header>
+          @if (renamingListId() === list.id) {
+          <form class="list-rename-form" (submit)="$event.preventDefault(); submitRenameList(list)">
+            <input class="field field-sm rename-input" name="renameListName" [(ngModel)]="renameListName" maxlength="60"
+              required />
+            <div class="rename-actions">
+              <button class="rename-icon-btn" type="submit" [disabled]="!renameListName.trim()"
+                aria-label="Save list name">
+                <span class="material-symbols-outlined">check</span>
+              </button>
+              <button class="rename-icon-btn" type="button" (click)="cancelRenameList()" aria-label="Cancel rename">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+          </form>
+          } @else {
+          <h3>{{ list.name }}</h3>
+          }
+          <span class="badge badge-primary">{{ list.tasks?.length || 0 }}</span>
+        </header>
+
+        @if (renamingListId() !== list.id) {
+        <div class="list-actions">
+          <button class="link-btn" type="button" (click)="beginRenameList(list)">Rename</button>
+          <button class="link-btn" type="button" (click)="startCreateTask(list.id)">Add task</button>
+        </div>
+        }
+
+        <div class="tasks">
+          @if (!(list.tasks?.length)) {
+          <p class="hint small">Drop tasks here or add one.</p>
+          } @else {
+          @for (task of (list.tasks ?? []); track task.id) {
+          <div class="task-item" [class.done]="task.isCompleted" [class.dragging]="movingTaskId() === task.id"
+            draggable="true" (dragstart)="onTaskDragStart(task, list.id)" (dragend)="onTaskDragEnd()"
+            (click)="openTaskDrawer(task, list.id)">
+            <p>{{ task.title }}</p>
+            <div class="task-meta">
+              <div class="task-badges">
+                <span class="task-badge priority" [style.backgroundColor]="getPriorityMeta(task.priority).bgColor">
+                  <span class="material-symbols-outlined">{{ getPriorityMeta(task.priority).icon }}</span>
+                  {{ task.priority }}
+                </span>
+                <span class="task-badge type" [style.backgroundColor]="getTypeMeta(task.type).bgColor">
+                  <span class="material-symbols-outlined">{{ getTypeMeta(task.type).icon }}</span>
+                  {{ task.type }}
+                </span>
+              </div>
+              @if (task.dueDate) {
+              <small class="due-date">Due {{ task.dueDate | date: 'MMM d' }}</small>
+              }
+            </div>
+          </div>
+          }
+          }
+        </div>
+      </article>
+      }
+    </div>
+  </div>
+  }
+</section>
+
+@if (taskDrawerOpen()) {
+<div class="drawer-backdrop" (click)="closeTaskDrawer()"></div>
+<aside class="task-drawer" role="dialog" aria-modal="true">
+  <header class="drawer-header">
+    <div class="drawer-header-text">
+      <p class="drawer-eyebrow">Task</p>
+      <h3>Details</h3>
+    </div>
+    <button class="drawer-close" type="button" (click)="closeTaskDrawer()" aria-label="Close">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </header>
+
+  @if (taskDrawerLoading()) {
+  <div class="drawer-state">
+    <app-techflow-spinner size="md" label="Loading task" />
+    <p class="hint">Loading task…</p>
+  </div>
+  } @else if (taskDrawerError()) {
+  <div class="drawer-state">
+    <p class="error-banner drawer-error">{{ taskDrawerError() }}</p>
+  </div>
+  } @else {
+  @if (selectedTask(); as task) {
+  <div class="drawer-body">
+    <section class="drawer-card">
+      <label class="drawer-label" for="task-title">Title</label>
+      <input id="task-title" class="drawer-input" name="taskEditTitle" [(ngModel)]="taskEditTitle" maxlength="120" />
+    </section>
+
+    <section class="drawer-card">
+      <label class="drawer-label" for="task-desc">Description</label>
+      <textarea id="task-desc" class="drawer-input drawer-textarea" name="taskEditDescription"
+        [(ngModel)]="taskEditDescription"></textarea>
+    </section>
+
+    <section class="drawer-card drawer-card--row">
+      <div class="drawer-field">
+        <span class="drawer-label">Priority</span>
+        <div class="drawer-field-with-color">
+          <app-techflow-dropdown id="task-priority" icon="flag" placeholder="Select priority" name="taskEditPriority"
+            [options]="priorityDropdownOptions" [(ngModel)]="taskEditPriority" />
+          <span class="color-dot" [style.backgroundColor]="getPriorityMeta(taskEditPriority).color"
+            title="Priority color"></span>
+        </div>
+      </div>
+      <div class="drawer-field">
+        <span class="drawer-label">Type</span>
+        <div class="drawer-field-with-color">
+          <app-techflow-dropdown id="task-type" icon="category" placeholder="Select type" name="taskEditType"
+            [options]="typeDropdownOptions" [(ngModel)]="taskEditType" />
+          <span class="color-dot" [style.backgroundColor]="getTypeMeta(taskEditType).color" title="Type color"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="drawer-card">
+      <app-techflow-date-picker name="taskEditDueDate" inputId="task-due" label="Due date"
+        [(ngModel)]="taskEditDueDate" />
+    </section>
+
+    <section class="drawer-card">
+      <div class="drawer-card-head">
+        <label class="drawer-label">Subtasks</label>
+        <span class="badge badge-primary">{{ task.subtasksCompleted }}/{{ task.subtasksTotal }}</span>
+      </div>
+      <form class="subtask-add" (submit)="$event.preventDefault(); addSubtask()">
+        <input class="drawer-input" placeholder="Add a subtask..." name="newSubtaskTitle"
+          [(ngModel)]="newSubtaskTitle" />
+        <button class="btn btn-primary btn-sm" type="submit" [disabled]="!newSubtaskTitle.trim() || addingSubtask()">
+          <span class="material-symbols-outlined">add</span>
+        </button>
+      </form>
+      <div class="subtasks-list">
+        @if (task.subtasks.length === 0) {
+        <p class="subtask-empty">No subtasks yet. Add one above!</p>
+        } @else {
+        @for (subtask of task.subtasks; track subtask.id) {
+        <div class="subtask-item" [class.completed]="subtask.isCompleted">
+          <label class="subtask-checkbox-label">
+            <input type="checkbox" class="subtask-checkbox" [checked]="subtask.isCompleted"
+              (change)="toggleSubtask(subtask.id, subtask.isCompleted)" />
+            <span class="subtask-checkbox-custom">
+              <span class="material-symbols-outlined subtask-check-icon" *ngIf="subtask.isCompleted">check_circle</span>
+              <span class="subtask-checkbox-box" *ngIf="!subtask.isCompleted"></span>
+            </span>
+            <span class="subtask-title">{{ subtask.title }}</span>
+          </label>
+          <button class="subtask-remove" type="button" (click)="removeSubtask(subtask.id)" title="Remove subtask">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        }
+        }
+      </div>
+    </section>
+
+    <section class="drawer-card">
+      <label class="drawer-label">Assignees</label>
+      <div class="assignee-grid">
+        @for (member of projectMembers(); track trackByMemberId($index, member)) {
+        <button class="assignee-chip" [class.active]="isAssigned(member.userId)" type="button"
+          (click)="toggleAssignee(member.userId)">
+          {{ member.fullName || member.email }}
+        </button>
+        }
+      </div>
+    </section>
+  </div>
+
+  <footer class="drawer-footer">
+    <button class="btn btn-primary btn-sm drawer-save" type="button" (click)="saveTaskDetails()"
+      [disabled]="savingTaskDetails()">
+      @if (savingTaskDetails()) {
+      <span class="drawer-save-inner">
+        <app-techflow-spinner size="sm" label="Saving" />
+        Saving…
+      </span>
+      } @else {
+      Save changes
+      }
+    </button>
+    <button class="btn btn-ghost btn-sm" type="button" (click)="closeTaskDrawer()">Close</button>
+  </footer>
+  }
+  }
+</aside>
+}

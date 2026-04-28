@@ -1,0 +1,29 @@
+<dialog #dialogEl class="tf-addlist-dialog" (close)="onDialogClose()">
+  <div class="tf-addlist-dialog__panel">
+    <header class="tf-addlist-dialog__head">
+      <div>
+        <h2>Add list</h2>
+        <p class="tf-addlist-dialog__sub">Create a new column on this board.</p>
+      </div>
+      <button type="button" class="tf-addlist-dialog__icon" (click)="close()" aria-label="Close">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </header>
+    <form class="tf-addlist-dialog__form" (submit)="$event.preventDefault(); submit()">
+      <label class="tf-addlist-dialog__label" for="add-list-name">List name</label>
+      <input
+        id="add-list-name"
+        class="tf-addlist-dialog__input"
+        name="listName"
+        [(ngModel)]="listName"
+        maxlength="60"
+        required
+        placeholder="e.g. In review"
+      />
+      <footer class="tf-addlist-dialog__actions">
+        <button type="button" class="btn btn-ghost btn-sm" (click)="close()">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm" [disabled]="!listName.trim()">Create list</button>
+      </footer>
+    </form>
+  </div>
+</dialog>

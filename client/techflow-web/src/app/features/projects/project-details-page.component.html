@@ -1,0 +1,132 @@
+<section class="project-details glass-card">
+  <header class="head">
+    <a class="btn btn-ghost btn-sm" routerLink="/app/projects">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Projects
+    </a>
+  </header>
+
+  @if (project(); as projectData) {
+  <article class="overview surface-card">
+    <div class="overview-top">
+      <div class="name-wrap">
+        <span class="project-icon" [style.background]="projectData.color + '22'" [style.color]="projectData.color">
+          <span class="material-symbols-outlined">folder</span>
+        </span>
+        <div>
+          <p class="eyebrow">Project Details</p>
+          <h2>{{ projectData.name }}</h2>
+        </div>
+      </div>
+
+      <span class="badge" [class.badge-warning]="projectData.isArchived"
+        [class.badge-success]="!projectData.isArchived">
+        {{ projectData.isArchived ? 'Archived' : 'Active' }}
+      </span>
+    </div>
+
+    <p class="description">{{ projectData.description || 'No description provided.' }}</p>
+
+    <div class="action-toolbar">
+      <button class="action-pill" type="button" (click)="openBoard()">
+        <span class="material-symbols-outlined" aria-hidden="true">view_kanban</span>
+        <span>Open board</span>
+      </button>
+      <button class="action-pill" type="button" (click)="openSprints()">
+        <span class="material-symbols-outlined" aria-hidden="true">sprint</span>
+        <span>Sprints</span>
+      </button>
+      <button class="action-pill" type="button" (click)="openTeam()">
+        <span class="material-symbols-outlined" aria-hidden="true">group</span>
+        <span>Team</span>
+      </button>
+      <button
+        class="action-pill action-pill--emphasis"
+        type="button"
+        [disabled]="actionLoading()"
+        (click)="toggleArchiveState()"
+      >
+        @if (actionLoading()) {
+        <app-techflow-spinner size="sm" label="Saving" />
+        <span>Saving…</span>
+        } @else {
+        @if (projectData.isArchived) {
+        <span class="material-symbols-outlined" aria-hidden="true">unarchive</span>
+        } @else {
+        <span class="material-symbols-outlined" aria-hidden="true">archive</span>
+        }
+        <span>{{ projectData.isArchived ? 'Restore project' : 'Archive project' }}</span>
+        }
+      </button>
+    </div>
+
+    <div class="meta-grid">
+      <article>
+        <small>Status</small>
+        <strong>{{ projectData.status }}</strong>
+      </article>
+      <article>
+        <small>Members</small>
+        <strong>{{ projectData.memberCount }}</strong>
+      </article>
+      <article>
+        <small>Start Date</small>
+        <strong>{{ projectData.startDate ? (projectData.startDate | date: 'MMM d, y') : 'Not set' }}</strong>
+      </article>
+      <article>
+        <small>End Date</small>
+        <strong>{{ projectData.endDate ? (projectData.endDate | date: 'MMM d, y') : 'Not set' }}</strong>
+      </article>
+      <article>
+        <small>Created</small>
+        <strong>{{ projectData.createdAt | date: 'MMM d, y' }}</strong>
+      </article>
+      <article>
+        <small>Updated</small>
+        <strong>{{ projectData.updatedAt | date: 'MMM d, y' }}</strong>
+      </article>
+    </div>
+  </article>
+
+  <div class="lower-grid">
+    <article class="panel surface-card">
+      <h3>Project Members</h3>
+
+      @if (!members().length) {
+      <p class="hint">No members found in this project.</p>
+      } @else {
+      <ul class="member-list">
+        @for (member of members(); track member.id) {
+        <li>
+          <span class="avatar">
+            {{ member.firstName.charAt(0) }}{{ member.lastName.charAt(0) }}
+          </span>
+          <div>
+            <strong>{{ displayMemberName(member) }}</strong>
+            <small>{{ member.email }}</small>
+          </div>
+        </li>
+        }
+      </ul>
+      }
+    </article>
+
+    <article class="panel surface-card settings-panel">
+      <h3>Workspace defaults</h3>
+      <p class="settings-lead">How new work is set up in this project.</p>
+      <div class="settings-grid">
+        @for (row of settingsRows(projectData.settings); track row.label) {
+        <div class="settings-cell">
+          <span class="settings-label">{{ row.label }}</span>
+          <span class="settings-value">{{ row.value }}</span>
+        </div>
+        }
+      </div>
+    </article>
+  </div>
+  } @else if (error()) {
+  <p class="error-banner">{{ error() }}</p>
+  } @else {
+  <p class="hint">Loading project details...</p>
+  }
+</section>

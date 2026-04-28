@@ -1,0 +1,74 @@
+<section class="project-create glass-card">
+  <header class="head">
+    <div>
+      <p class="eyebrow">Projects</p>
+      <h2>Create Project</h2>
+      <p class="sub">Set up a project space for boards, sprints, and team workflows.</p>
+    </div>
+
+    <a class="btn btn-ghost btn-sm" routerLink="/app/projects">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Back to list
+    </a>
+  </header>
+
+  <form [formGroup]="createForm" (ngSubmit)="submit()" novalidate class="form">
+    <div class="field">
+      <label class="label" for="project-name">Project Name</label>
+      <input id="project-name" class="input no-icon" type="text" formControlName="name" placeholder="TechFlow Web App" />
+      @if (name.invalid && name.touched) {
+      <span class="field-error">Project name is required and must be under 100 characters.</span>
+      }
+    </div>
+
+    <div class="field">
+      <label class="label" for="project-description">Description</label>
+      <textarea
+        id="project-description"
+        class="input no-icon description"
+        rows="4"
+        formControlName="description"
+        placeholder="Optional short summary for this project"></textarea>
+      @if (description.invalid && description.touched) {
+      <span class="field-error">Description must be 500 characters or less.</span>
+      }
+    </div>
+
+    <div class="grid-two">
+      <app-techflow-date-input formControlName="startDate" inputId="project-start-date" label="Start Date" />
+      <app-techflow-date-input formControlName="endDate" inputId="project-end-date" label="End Date" />
+    </div>
+
+    @if (createForm.hasError('dateRange') && (startDate.touched || endDate.touched)) {
+    <span class="field-error">Start date must be before or equal to end date.</span>
+    }
+
+    <div class="field">
+      <app-techflow-color-input
+        formControlName="color"
+        inputId="project-color"
+        label="Project Color"
+        [presets]="colorPresets"
+      />
+      @if (color.invalid && color.touched) {
+      <span class="field-error">Provide a valid hex color.</span>
+      }
+    </div>
+
+    @if (submitError()) {
+    <p class="error-banner">{{ submitError() }}</p>
+    }
+
+    <div class="actions">
+      <a class="btn btn-ghost" routerLink="/app/projects">Cancel</a>
+      <button class="btn btn-primary btn-submit" type="submit" [disabled]="submitting()">
+        @if (submitting()) {
+        <app-techflow-spinner size="sm" label="Creating project" />
+        <span>Creating…</span>
+        } @else {
+        Create project
+        }
+      </button>
+    </div>
+  </form>
+</section>

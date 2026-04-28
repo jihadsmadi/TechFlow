@@ -1,25 +1,105 @@
-<section class="glass-card page-card">
-  <header class="page-header">
-    <h2>Projects</h2>
-    <button type="button" class="btn btn-ghost btn-sm" (click)="load()">Refresh</button>
+<section class="projects-page glass-card">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Workspace</p>
+      <h2>Projects</h2>
+      <p class="page-sub">Track active and archived projects with quick search and status filters.</p>
+    </div>
+
+    <div class="head-actions">
+      <button type="button" class="btn btn-ghost btn-sm" (click)="refresh()">
+        <span class="material-symbols-outlined">refresh</span>
+        Refresh
+      </button>
+      <button type="button" class="btn btn-primary btn-sm" (click)="openCreatePage()">
+        <span class="material-symbols-outlined">add</span>
+        New project
+      </button>
+    </div>
   </header>
 
+  <section class="filters surface-card">
+    <label class="search-wrap" for="project-search">
+      <span class="material-symbols-outlined">search</span>
+      <input id="project-search" class="input search-input" type="search" [value]="searchTerm()"
+        (input)="onSearchChange($event)" placeholder="Search by project name or description" />
+    </label>
+
+    <div class="status-field">
+      <span class="status-label">Status</span>
+      <app-techflow-dropdown id="project-status" icon="filter_list" placeholder="Status" name="projectStatus"
+        [options]="statusDropdownOptions" [ngModel]="statusFilter()" (ngModelChange)="onStatusPicked($event)" />
+    </div>
+
+    <button type="button" class="btn btn-ghost clear-btn" (click)="clearFilters()">
+      <span class="material-symbols-outlined">refresh</span>
+      Reset
+    </button>
+  </section>
+
+  <section class="stats-row" aria-label="Project counts">
+    <article class="stat-card">
+      <span class="stat-card__label">Visible</span>
+      <span class="stat-card__value">{{ filteredProjects().length }}</span>
+      <span class="stat-card__hint">After search and filter</span>
+    </article>
+    <article class="stat-card">
+      <span class="stat-card__label">Active</span>
+      <span class="stat-card__value">{{ activeCount() }}</span>
+      <span class="stat-card__hint">Not archived</span>
+    </article>
+    <article class="stat-card">
+      <span class="stat-card__label">Archived</span>
+      <span class="stat-card__value">{{ archivedCount() }}</span>
+      <span class="stat-card__hint">In workspace</span>
+    </article>
+  </section>
+
   @if (loading()) {
-  <p class="hint">Loading projects...</p>
+  <div class="projects-loading" role="status" aria-live="polite">
+    <app-techflow-spinner size="md" label="Loading projects" />
+    <p class="hint">Loading projects…</p>
+  </div>
   } @else if (error()) {
   <p class="error-banner">{{ error() }}</p>
   } @else if (!projects().length) {
-  <p class="hint">No projects yet. Create one from the backend or Postman first.</p>
+  <article class="empty-state">
+    <span class="material-symbols-outlined">folder_open</span>
+    <div>
+      <p>No projects yet.</p>
+      <button type="button" class="btn btn-primary btn-sm" (click)="openCreatePage()">Create first project</button>
+    </div>
+  </article>
+  } @else if (showFilteredEmpty()) {
+  <article class="empty-state">
+    <span class="material-symbols-outlined">filter_alt_off</span>
+    <div>
+      <p>No projects match your filters.</p>
+      <button type="button" class="btn btn-ghost btn-sm" (click)="clearFilters()">Clear filters</button>
+    </div>
+  </article>
   } @else {
-  <div class="grid">
-    @for (project of projects(); track project.id) {
-    <article class="project-card">
-      <div class="card-top">
-        <h3>{{ project.name }}</h3>
-        <span class="badge badge-primary">{{ project.status || 'Active' }}</span>
+  <div class="project-grid">
+    @for (project of filteredProjects(); track project.id) {
+    <article class="project-card" [class.archived]="project.isArchived" role="button" tabindex="0"
+      (click)="openProjectDetails(project.id)" (keydown.enter)="openProjectDetails(project.id)"
+      (keydown.space)="$event.preventDefault(); openProjectDetails(project.id)">
+      <div class="project-card-top">
+        <div class="project-icon" [style.background]="project.color + '22'" [style.color]="project.color">
+          <span class="material-symbols-outlined">layers</span>
+        </div>
+        <span class="badge" [ngClass]="statusClass(project)">{{ statusLabel(project) }}</span>
       </div>
+
+      <h3>{{ project.name }}</h3>
       <p>{{ project.description || 'No description provided.' }}</p>
-      <small>ID: {{ project.id }}</small>
+
+      <footer>
+        <small>{{ project.memberCount }} members</small>
+        @if (project.startDate || project.endDate) {
+        <small>{{ project.startDate | date: 'MMM d' }} - {{ project.endDate | date: 'MMM d' }}</small>
+        }
+      </footer>
     </article>
     }
   </div>

@@ -1,0 +1,41 @@
+.tf-date {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.tf-date__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    letter-spacing: 0.02em;
+}
+
+.tf-date__input {
+    width: 100%;
+    min-height: 46px;
+    padding: 0.5rem 0.65rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-surface);
+    color: var(--color-text);
+    font-size: 0.875rem;
+    font-family: inherit;
+    accent-color: var(--color-primary);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tf-date__input:hover:not(:disabled) {
+    border-color: var(--color-primary-border-mix, var(--color-border));
+}
+
+.tf-date__input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-focus-ring, rgba(29, 143, 140, 0.22));
+}
+
+.tf-date__input:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}

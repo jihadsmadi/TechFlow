@@ -1,0 +1,50 @@
+<div class="tf-date-picker">
+    @if (label) {
+    <label class="tf-date-picker__label" [attr.for]="inputId || null">{{ label }}</label>
+    }
+    <div class="tf-date-picker__wrapper">
+        <button type="button" class="tf-date-picker__input" [id]="inputId" [disabled]="disabled"
+            [class.is-open]="isOpen()" (click)="toggleOpen()">
+            <span class="tf-date-picker__value" [class.is-empty]="!value">
+                {{ displayValue || 'Select date' }}
+            </span>
+            <span class="material-symbols-outlined tf-date-picker__icon">calendar_today</span>
+        </button>
+
+        @if (isOpen()) {
+        <div class="tf-date-picker__popover" role="dialog">
+            <div class="tf-date-picker__header">
+                <button type="button" class="tf-date-picker__nav-btn" (click)="previousMonth()"
+                    aria-label="Previous month">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <div class="tf-date-picker__month-year">{{ monthYear }}</div>
+                <button type="button" class="tf-date-picker__nav-btn" (click)="nextMonth()" aria-label="Next month">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+            </div>
+
+            <div class="tf-date-picker__calendar">
+                <div class="tf-date-picker__weekdays">
+                    @for (day of daysOfWeek; track day) {
+                    <div class="tf-date-picker__weekday">{{ day }}</div>
+                    }
+                </div>
+
+                <div class="tf-date-picker__days">
+                    @for (day of calendarDays; track $index) {
+                    @if (day === null) {
+                    <div class="tf-date-picker__day-empty"></div>
+                    } @else {
+                    <button type="button" class="tf-date-picker__day" [class.is-selected]="isSelected(day)"
+                        [class.is-today]="isToday(day)" (click)="selectDate(day)">
+                        {{ day }}
+                    </button>
+                    }
+                    }
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+</div>

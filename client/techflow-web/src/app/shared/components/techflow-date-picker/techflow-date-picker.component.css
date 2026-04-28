@@ -1,0 +1,229 @@
+:host {
+    display: block;
+}
+
+.tf-date-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.tf-date-picker__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    letter-spacing: 0.02em;
+}
+
+.tf-date-picker__wrapper {
+    position: relative;
+}
+
+.tf-date-picker__input {
+    width: 100%;
+    min-height: 46px;
+    padding: 0.5rem 0.65rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-surface);
+    color: var(--color-text);
+    font-size: 0.875rem;
+    font-family: inherit;
+    display: grid;
+    grid-template-columns: 1fr 24px;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tf-date-picker__input:hover:not(:disabled) {
+    border-color: var(--color-primary-border-mix, var(--color-border));
+}
+
+.tf-date-picker__input:focus-visible,
+.tf-date-picker__input.is-open {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-focus-ring, rgba(29, 143, 140, 0.22));
+}
+
+.tf-date-picker__input:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    background: var(--color-bg-elevated);
+}
+
+.tf-date-picker__value {
+    font-size: 0.875rem;
+    color: var(--color-text);
+    text-align: left;
+}
+
+.tf-date-picker__value.is-empty {
+    color: var(--color-text-subtle);
+}
+
+.tf-date-picker__icon {
+    font-size: 18px;
+    color: var(--color-text-subtle);
+    justify-self: end;
+    flex-shrink: 0;
+}
+
+.tf-date-picker__input:hover:not(:disabled) .tf-date-picker__icon {
+    color: var(--color-interactive-text);
+}
+
+.tf-date-picker__popover {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 50;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-surface);
+    box-shadow: var(--shadow-soft);
+    padding: 16px;
+    animation: date-picker-enter 0.16s ease;
+}
+
+.tf-date-picker__header {
+    display: grid;
+    grid-template-columns: 32px 1fr 32px;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.tf-date-picker__month-year {
+    text-align: center;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.tf-date-picker__nav-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-surface);
+    color: var(--color-text-subtle);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: all 0.15s ease;
+    padding: 0;
+}
+
+.tf-date-picker__nav-btn:hover {
+    border-color: var(--color-primary-border-mix);
+    background: var(--color-primary-surface-hover);
+    color: var(--color-interactive-text);
+}
+
+.tf-date-picker__nav-btn .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.tf-date-picker__calendar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tf-date-picker__weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+.tf-date-picker__weekday {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.05em;
+}
+
+.tf-date-picker__days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.tf-date-picker__day-empty {
+    height: 32px;
+}
+
+.tf-date-picker__day {
+    height: 32px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-text);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    padding: 0;
+}
+
+.tf-date-picker__day:hover {
+    background: var(--color-bg-elevated);
+    border-color: var(--color-border-subtle);
+}
+
+.tf-date-picker__day.is-today {
+    border-color: var(--color-primary);
+    font-weight: 600;
+}
+
+.tf-date-picker__day.is-selected {
+    background: var(--color-primary);
+    color: #fff;
+    font-weight: 600;
+    border-color: var(--color-primary);
+}
+
+.tf-date-picker__day.is-selected:hover {
+    background: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+}
+
+@keyframes date-picker-enter {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+:host-context([data-theme='dark']) .tf-date-picker__input {
+    border-color: var(--color-border, #2a3a56);
+    background: var(--color-bg-surface, #101a2d);
+    color: var(--color-text, #eaf1ff);
+}
+
+:host-context([data-theme='dark']) .tf-date-picker__input:hover:not(:disabled) {
+    border-color: var(--color-primary-border-mix, var(--color-border));
+}
+
+:host-context([data-theme='dark']) .tf-date-picker__popover {
+    border-color: var(--color-border, #2a3a56);
+    background: var(--color-bg-surface, #101a2d);
+}

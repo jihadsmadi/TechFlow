@@ -1,0 +1,7 @@
+<div class="tf-date">
+  @if (label) {
+  <label class="tf-date__label" [attr.for]="inputId || null">{{ label }}</label>
+  }
+  <input class="tf-date__input" type="date" [id]="inputId" [disabled]="disabled" [value]="value"
+    (input)="onInputEvent($event)" (blur)="blur()" />
+</div>

@@ -1,0 +1,29 @@
+<div class="tf-color">
+  @if (label) {
+  <span class="tf-color__label" [id]="inputId ? inputId + '-label' : null">{{ label }}</span>
+  }
+  <div class="tf-color__row">
+    <input
+      class="tf-color__native"
+      type="color"
+      [attr.aria-labelledby]="label && inputId ? inputId + '-label' : null"
+      [id]="inputId"
+      [disabled]="disabled"
+      [value]="value"
+      (input)="onNativePicker($event)"
+    />
+    <div class="tf-color__swatches" role="list">
+      @for (preset of presets; track preset) {
+      <button
+        type="button"
+        class="tf-color__swatch"
+        [class.tf-color__swatch--active]="value.toLowerCase() === preset.toLowerCase()"
+        [style.background]="preset"
+        [disabled]="disabled"
+        [attr.aria-label]="'Use color ' + preset"
+        (click)="selectPreset(preset)"
+      ></button>
+      }
+    </div>
+  </div>
+</div>

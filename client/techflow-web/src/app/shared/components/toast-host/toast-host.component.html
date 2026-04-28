@@ -1,0 +1,24 @@
+@if (toast.toasts().length) {
+<div class="toast-host" role="region" aria-label="Notifications">
+  @for (item of toast.toasts(); track item.id) {
+  <div
+    class="tf-toast"
+    [class.tf-toast--success]="item.variant === 'success'"
+    [class.tf-toast--error]="item.variant === 'error'"
+    [class.tf-toast--info]="item.variant === 'info'"
+    [class.is-leaving]="item.leaving"
+    role="status"
+    aria-live="polite"
+  >
+    <span class="tf-toast__icon material-symbols-outlined" aria-hidden="true">{{ iconFor(item.variant) }}</span>
+    <div class="tf-toast__body">
+      <p class="tf-toast__title">{{ item.title || defaultTitle(item.variant) }}</p>
+      <p class="tf-toast__msg">{{ item.message }}</p>
+    </div>
+    <button type="button" class="tf-toast__close" (click)="toast.dismiss(item.id)" aria-label="Dismiss">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+  }
+</div>
+}

@@ -1,0 +1,33 @@
+.tf-spin {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+}
+
+.tf-spin__ring {
+    display: block;
+    border-radius: 50%;
+    border-style: solid;
+    border-color: color-mix(in srgb, var(--color-text-subtle) 28%, transparent);
+    border-top-color: var(--color-primary);
+    animation: tf-spin-rotate 0.65s linear infinite;
+}
+
+.tf-spin--sm .tf-spin__ring {
+    width: 1rem;
+    height: 1rem;
+    border-width: 2px;
+}
+
+.tf-spin--md .tf-spin__ring {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-width: 2px;
+}
+
+@keyframes tf-spin-rotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
